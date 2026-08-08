@@ -91,8 +91,13 @@ export default function CatalogueClient({ formations }: { formations: any[] }) {
           return (
             <div key={formation.id} className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col group hover:shadow-2xl hover:-translate-y-1 transition duration-300">
               {/* Top Half */}
-              <div className={`${theme.bg} h-48 relative p-6 flex flex-col justify-between`}>
-                <div className="flex justify-between items-start">
+              <div 
+                className={`${formation.imageUrl ? 'bg-cover bg-center' : theme.bg} h-48 relative p-6 flex flex-col justify-between`}
+                style={formation.imageUrl ? { backgroundImage: `url(${formation.imageUrl})` } : {}}
+              >
+                {formation.imageUrl && <div className="absolute inset-0 bg-slate-900/30"></div>}
+                
+                <div className="relative z-10 flex justify-between items-start">
                   <span className="bg-white/20 backdrop-blur-md text-white text-[10px] font-extrabold px-3 py-1.5 rounded-full border border-white/20 uppercase tracking-wider">
                     {formation.gratuit !== false ? 'Free' : 'Paid'}
                   </span>
@@ -102,7 +107,7 @@ export default function CatalogueClient({ formations }: { formations: any[] }) {
                     </span>
                   )}
                 </div>
-                <div className="absolute right-6 bottom-6 w-14 h-14 bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl flex items-center justify-center group-hover:scale-110 transition">
+                <div className="relative z-10 absolute right-6 bottom-6 w-14 h-14 bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl flex items-center justify-center group-hover:scale-110 transition">
                   <Icon className="text-white" size={24} />
                 </div>
               </div>

@@ -24,8 +24,10 @@ export default function AdminFormations() {
     niveau: 'DEBUTANT', 
     duree: 4, 
     gratuit: true, 
-    publie: false 
+    publie: false,
+    imageUrl: ''
   });
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [addStatus, setAddStatus] = useState<'idle' | 'loading' | 'error'>('idle');
 
   const fetchFormations = async () => {
@@ -78,7 +80,7 @@ export default function AdminFormations() {
       if (res.ok) {
         setShowAddModal(false);
         setEditingCourseId(null);
-        setNewCourse({ titre: '', description: '', niveau: 'DEBUTANT', duree: 4, gratuit: true, publie: false });
+        setNewCourse({ titre: '', description: '', niveau: 'DEBUTANT', duree: 4, gratuit: true, publie: false, imageUrl: '' });
         fetchFormations();
       } else {
         setAddStatus('error');
@@ -87,6 +89,34 @@ export default function AdminFormations() {
       setAddStatus('error');
     } finally {
       if (addStatus === 'loading') setAddStatus('idle');
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch(`http://localhost:5000/api/admin/upload?adminEmail=${session?.user?.email}`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setNewCourse({ ...newCourse, imageUrl: data.url });
+      } else {
+        alert('Image upload failed');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error uploading image');
+    } finally {
+      setUploadingImage(false);
     }
   };
 
@@ -193,7 +223,8 @@ export default function AdminFormations() {
                             niveau: formation.niveau,
                             duree: formation.duree ? parseInt(formation.duree) : 4,
                             gratuit: formation.gratuit,
-                            publie: formation.publie
+                            publie: formation.publie,
+                            imageUrl: formation.imageUrl || ''
                           });
                           setShowAddModal(true);
                         }}
@@ -256,6 +287,25 @@ export default function AdminFormations() {
                 </div>
               </div>
 
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">Cover Image</label>
+                <div className="relative">
+                  <input 
+                    type="file" 
+                    accept="image/*"
+                    onChange={handleImageUpload} 
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] transition file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-[#0066FF] hover:file:bg-blue-100" 
+                  />
+                  {uploadingImage && <div className="absolute right-3 top-2.5 flex items-center text-xs font-bold text-[#0066FF]"><Loader2 size={16} className="animate-spin mr-1" /> Uploading...</div>}
+                </div>
+                {newCourse.imageUrl && (
+                  <div className="mt-2 flex items-center gap-2">
+                    <img src={newCourse.imageUrl} alt="Cover Preview" className="h-10 w-16 object-cover rounded-md border border-slate-200" />
+                    <p className="text-xs text-emerald-600 font-semibold">✓ Image uploaded</p>
+                  </div>
+                )}
+              </div>
+
               <div className="grid grid-cols-2 gap-5 pt-2">
                 <label className="flex items-center gap-3 cursor-pointer group">
                   <div className={`w-5 h-5 rounded flex items-center justify-center border transition ${newCourse.gratuit ? 'bg-[#0066FF] border-[#0066FF]' : 'bg-white border-slate-300 group-hover:border-[#0066FF]'}`}>
@@ -278,8 +328,8 @@ export default function AdminFormations() {
               
               <div className="pt-6 flex justify-end gap-3 border-t border-slate-100">
                 <button type="button" onClick={() => setShowAddModal(false)} className="px-5 py-2.5 text-sm font-bold text-slate-500 hover:text-slate-700 hover:bg-slate-50 rounded-xl transition">Cancel</button>
-                <button disabled={addStatus === 'loading'} type="submit" className="px-6 py-2.5 bg-[#0066FF] text-white text-sm font-bold rounded-xl shadow-md shadow-[#0066FF]/20 hover:bg-blue-700 transition disabled:opacity-70">
-                  {addStatus === 'loading' ? 'Saving...' : editingCourseId ? 'Save Changes' : 'Create Course'}
+                <button disabled={addStatus === 'loading' || uploadingImage} type="submit" className="px-6 py-2.5 bg-[#0066FF] text-white text-sm font-bold rounded-xl shadow-md shadow-[#0066FF]/20 hover:bg-blue-700 transition disabled:opacity-70">
+                  {addStatus === 'loading' || uploadingImage ? 'Saving...' : editingCourseId ? 'Save Changes' : 'Create Course'}
                 </button>
               </div>
             </form>

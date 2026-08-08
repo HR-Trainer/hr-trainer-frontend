@@ -89,9 +89,13 @@ export default async function FormationDetail({ params }: { params: Promise<{ id
             {/* Right Hero Card */}
             <div className="lg:col-span-4 hidden lg:block relative">
               <div className="absolute top-4 w-full bg-white rounded-3xl shadow-xl overflow-hidden text-slate-900 border border-slate-100 flex flex-col">
-                <div className="h-32 bg-slate-100 flex items-center justify-center relative">
+                <div 
+                  className={`h-32 ${formation.imageUrl ? 'bg-cover bg-center' : 'bg-slate-100'} flex items-center justify-center relative`}
+                  style={formation.imageUrl ? { backgroundImage: `url(${formation.imageUrl})` } : {}}
+                >
+                  {formation.imageUrl && <div className="absolute inset-0 bg-black/20"></div>}
                   {/* Video Placeholder */}
-                  <div className="w-14 h-14 bg-white/90 rounded-full flex items-center justify-center shadow-lg cursor-pointer hover:scale-105 transition">
+                  <div className="relative z-10 w-14 h-14 bg-white/90 rounded-full flex items-center justify-center shadow-lg cursor-pointer hover:scale-105 transition">
                     <PlayCircle size={28} className="text-[#0066FF] ml-1" />
                   </div>
                 </div>
@@ -158,7 +162,7 @@ export default async function FormationDetail({ params }: { params: Promise<{ id
                 <span className="text-[13px] font-bold text-slate-400">{formation.modules?.length || 8} modules • {formation.duree || '6h 30'}</span>
               </div>
               
-              <ModuleList modules={formation.modules || Array(8).fill({ titre: "Sample Module" })} />
+              <ModuleList modules={formation.modules || Array(8).fill({ titre: "Sample Module" })} formationId={formation.id} />
             </div>
 
             {/* Alert */}
@@ -189,9 +193,13 @@ export default async function FormationDetail({ params }: { params: Promise<{ id
             <div className="sticky top-28 bg-white rounded-3xl shadow-[0_12px_40px_rgb(0,0,0,0.08)] border border-slate-100 overflow-hidden flex flex-col mb-12 lg:mb-0">
               
               {/* Card Header Image Placeholder */}
-              <div className="h-32 bg-[#6B4BFF] relative flex items-center justify-center">
-                <div className="w-16 h-16 border-2 border-white/20 rounded-2xl flex items-center justify-center">
-                  <BookOpen size={32} className="text-white/60" />
+              <div 
+                className={`h-32 ${formation.imageUrl ? 'bg-cover bg-center' : 'bg-[#6B4BFF]'} relative flex items-center justify-center`}
+                style={formation.imageUrl ? { backgroundImage: `url(${formation.imageUrl})` } : {}}
+              >
+                {formation.imageUrl && <div className="absolute inset-0 bg-black/20"></div>}
+                <div className="relative z-10 w-16 h-16 border-2 border-white/20 rounded-2xl flex items-center justify-center">
+                  <BookOpen size={32} className={formation.imageUrl ? 'text-white' : 'text-white/60'} />
                 </div>
               </div>
               

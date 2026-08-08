@@ -43,13 +43,13 @@ export default function LecteurModule() {
     }
   }, [session, moduleId, formationId]);
 
-  const handleComplete = async (finalScore?: number) => {
+  const handleComplete = async (finalScore?: number, passedAnswers?: any) => {
     setSubmitting(true);
     try {
       await fetch(`http://localhost:5000/api/eleve/modules/${moduleId}/complete`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: session?.user?.email, score: finalScore })
+        body: JSON.stringify({ email: session?.user?.email, score: finalScore, answers: passedAnswers })
       });
       // Update local state
       setData((prev: any) => ({
@@ -80,7 +80,7 @@ export default function LecteurModule() {
     const calculatedScore = Math.round((correctCount / questions.length) * 100);
     setScore(calculatedScore);
     setQuizSubmitted(true);
-    handleComplete(calculatedScore);
+    handleComplete(calculatedScore, quizAnswers);
   };
 
   if (loading) {
@@ -188,13 +188,13 @@ export default function LecteurModule() {
                 <h2 className="text-xl font-bold text-slate-900">Quiz de validation</h2>
               </div>
 
-              {quizSubmitted || data?.progression?.score !== null ? (
-                <div className={`p-6 rounded-xl border ${score !== null && score >= 70 || (data.progression.score && data.progression.score >= 70) ? 'bg-emerald-50 border-emerald-100' : 'bg-red-50 border-red-100'}`}>
-                  <h3 className={`text-lg font-bold mb-2 ${score !== null && score >= 70 || (data.progression.score && data.progression.score >= 70) ? 'text-emerald-800' : 'text-red-800'}`}>
-                    {score !== null && score >= 70 || (data.progression.score && data.progression.score >= 70) ? 'Félicitations !' : 'Quiz non validé'}
+              {quizSubmitted || data?.progression?.score != null ? (
+                <div className={`p-6 rounded-xl border ${score !== null && score >= 70 || (data?.progression?.score && data?.progression?.score >= 70) ? 'bg-emerald-50 border-emerald-100' : 'bg-red-50 border-red-100'}`}>
+                  <h3 className={`text-lg font-bold mb-2 ${score !== null && score >= 70 || (data?.progression?.score && data?.progression?.score >= 70) ? 'text-emerald-800' : 'text-red-800'}`}>
+                    {score !== null && score >= 70 || (data?.progression?.score && data?.progression?.score >= 70) ? 'Félicitations !' : 'Quiz non validé'}
                   </h3>
-                  <p className={`font-medium ${score !== null && score >= 70 || (data.progression.score && data.progression.score >= 70) ? 'text-emerald-600' : 'text-red-600'}`}>
-                    Votre score : {score ?? data.progression.score} %
+                  <p className={`font-medium ${score !== null && score >= 70 || (data?.progression?.score && data?.progression?.score >= 70) ? 'text-emerald-600' : 'text-red-600'}`}>
+                    Votre score : {score ?? data?.progression?.score} %
                   </p>
                 </div>
               ) : (

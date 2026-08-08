@@ -42,11 +42,7 @@ export default function Inscription() {
       return;
     }
 
-    if (!formData.email.endsWith(ALLOWED_DOMAIN)) {
-      setStatus('error');
-      setErrorMsg(`Email address must end with ${ALLOWED_DOMAIN}`);
-      return;
-    }
+    // Domain restriction removed for testing purposes
     
     try {
       const res = await fetch('http://localhost:5000/api/inscription', {

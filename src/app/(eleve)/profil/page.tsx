@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import { User, Lock, Camera, ShieldAlert, Clock } from 'lucide-react';
+import Link from 'next/link';
 
 export default function Profil() {
   const { data: session, status, update } = useSession();
@@ -249,6 +250,12 @@ export default function Profil() {
             </button>
             {saveStatus === 'success' && <span className="ml-4 text-emerald-600 text-sm font-bold">Changes saved!</span>}
             {saveStatus === 'error' && <span className="ml-4 text-red-600 text-sm font-bold">Error while saving.</span>}
+            
+            <div className="ml-auto">
+              <Link href="/mon-espace/attestations" className="bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200 px-6 py-3 rounded-xl font-bold text-sm transition flex items-center gap-2">
+                <Award size={16} /> Mes Attestations
+              </Link>
+            </div>
           </div>
         </form>
       </div>

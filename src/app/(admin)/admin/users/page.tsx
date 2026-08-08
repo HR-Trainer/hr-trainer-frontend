@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { Loader2, UserX, UserCheck, Shield, Mail, Phone, Building, Trash2, X, AlertTriangle } from 'lucide-react';
+import { Loader2, UserX, UserCheck, Shield, Mail, Phone, Building, Trash2, X, AlertTriangle, TrendingUp } from 'lucide-react';
 
 export default function AdminUsers() {
   const { data: session } = useSession();
@@ -13,6 +13,10 @@ export default function AdminUsers() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [userToDelete, setUserToDelete] = useState<any>(null);
+  const [showProgressModal, setShowProgressModal] = useState(false);
+  const [selectedUserProgress, setSelectedUserProgress] = useState<any>(null);
+  const [progressData, setProgressData] = useState<any[]>([]);
+  const [loadingProgress, setLoadingProgress] = useState(false);
 
   // Add User Form State
   const [newUser, setNewUser] = useState({ email: '', password: '', nom: '', profil: 'PARTICULIER', role: 'ELEVE' });
@@ -34,6 +38,23 @@ export default function AdminUsers() {
   useEffect(() => {
     fetchUsers();
   }, [session]);
+
+  const handleViewProgress = async (user: any) => {
+    setSelectedUserProgress(user);
+    setShowProgressModal(true);
+    setLoadingProgress(true);
+    try {
+      const res = await fetch(`http://localhost:5000/api/admin/users/${user.id}/progress?adminEmail=${session?.user?.email}`);
+      if (res.ok) {
+        const data = await res.json();
+        setProgressData(data);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingProgress(false);
+    }
+  };
 
   const toggleUserStatus = async (id: string, currentStatus: boolean) => {
     try {
@@ -181,6 +202,13 @@ export default function AdminUsers() {
                       >
                         {user.actif ? <UserX size={18} /> : <UserCheck size={18} />}
                       </button>
+                      <button 
+                        onClick={() => handleViewProgress(user)}
+                        className="p-2 rounded-lg text-slate-400 hover:text-[#0066FF] hover:bg-blue-50 transition"
+                        title="View Progress"
+                      >
+                        <TrendingUp size={18} />
+                      </button>
                       {user.email !== session?.user?.email && (
                         <button 
                           onClick={() => { setUserToDelete(user); setShowDeleteModal(true); }}
@@ -283,6 +311,70 @@ export default function AdminUsers() {
                   Cancel
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Progress Modal */}
+      {showProgressModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+              <h2 className="text-lg font-bold text-slate-900">User Progress: {selectedUserProgress?.nom}</h2>
+              <button onClick={() => setShowProgressModal(false)} className="text-slate-400 hover:text-slate-600 transition"><X size={20} /></button>
+            </div>
+            <div className="p-6 max-h-[70vh] overflow-y-auto">
+              {loadingProgress ? (
+                <div className="flex justify-center items-center py-12"><Loader2 className="animate-spin text-[#0066FF]" size={32} /></div>
+              ) : progressData.length === 0 ? (
+                <div className="text-center py-12 text-slate-500">
+                  <p>This user is not enrolled in any courses yet.</p>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {progressData.map((course: any) => (
+                    <div key={course.formationId} className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+                      <div className="flex justify-between items-center mb-4">
+                        <h3 className="font-bold text-slate-900">{course.titre}</h3>
+                        <span className="text-sm font-bold text-[#0066FF]">{course.progression}%</span>
+                      </div>
+                      
+                      {/* Progress Bar */}
+                      <div className="w-full bg-slate-100 rounded-full h-2.5 mb-5 overflow-hidden">
+                        <div 
+                          className="bg-[#0066FF] h-2.5 rounded-full transition-all duration-500" 
+                          style={{ width: `${course.progression}%` }}
+                        ></div>
+                      </div>
+
+                      {/* Quiz Scores */}
+                      {course.quizScores && course.quizScores.length > 0 && (
+                        <div className="pt-4 border-t border-slate-100">
+                          <h4 className="text-xs font-bold text-slate-500 mb-3 uppercase tracking-wider">Quiz Scores</h4>
+                          <div className="space-y-2">
+                            {course.quizScores.map((quiz: any, idx: number) => (
+                              <div key={idx} className="flex justify-between items-center bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                                <span className="text-sm font-medium text-slate-700">{quiz.moduleTitle}</span>
+                                <span className={`text-xs font-bold px-2 py-1 rounded-md ${
+                                  quiz.score >= 80 ? 'bg-green-100 text-green-700' :
+                                  quiz.score >= 50 ? 'bg-amber-100 text-amber-700' :
+                                  'bg-red-100 text-red-700'
+                                }`}>
+                                  {quiz.score}%
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="px-6 py-4 border-t border-slate-100 flex justify-end bg-slate-50">
+              <button onClick={() => setShowProgressModal(false)} className="px-5 py-2.5 bg-white border border-slate-200 text-slate-700 text-sm font-bold rounded-xl hover:bg-slate-50 transition">Close</button>
             </div>
           </div>
         </div>

@@ -25,6 +25,7 @@ export default function CourseEditor() {
     contenuUrl: '',
     duree: ''
   });
+  const [uploadingFile, setUploadingFile] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const fetchCourseAndModules = async () => {
@@ -70,6 +71,34 @@ export default function CourseEditor() {
       duree: mod.duree ? mod.duree.toString() : ''
     });
     setShowModal(true);
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingFile(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch(`http://localhost:5000/api/admin/upload?adminEmail=${session?.user?.email}`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setModuleForm({ ...moduleForm, contenuUrl: data.url });
+      } else {
+        alert('File upload failed');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error uploading file');
+    } finally {
+      setUploadingFile(false);
+    }
   };
 
   const handleSaveModule = async (e: React.FormEvent) => {
@@ -191,6 +220,15 @@ export default function CourseEditor() {
                   )}
                 </div>
                 <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {mod.typeContenu === 'QUIZ' && (
+                    <Link
+                      href={`/admin/formations/${courseId}/modules/${mod.id}/quiz`}
+                      className="p-2 rounded-lg text-slate-400 hover:text-purple-600 hover:bg-purple-50 transition"
+                      title="Build Quiz"
+                    >
+                      <CheckSquare size={18} />
+                    </Link>
+                  )}
                   <button 
                     onClick={() => openEditModal(mod)}
                     className="p-2 rounded-lg text-slate-400 hover:text-[#0066FF] hover:bg-blue-50 transition"
@@ -246,8 +284,19 @@ export default function CourseEditor() {
               {moduleForm.typeContenu !== 'QUIZ' && (
                 <div className="grid grid-cols-4 gap-5">
                   <div className="col-span-3">
-                    <label className="block text-xs font-bold text-slate-700 mb-2">Content URL (Video link or PDF)</label>
-                    <input type="url" value={moduleForm.contenuUrl} onChange={e => setModuleForm({...moduleForm, contenuUrl: e.target.value})} className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] transition font-mono" placeholder="https://www.youtube.com/embed/..." />
+                    <label className="block text-xs font-bold text-slate-700 mb-2">Content File (Video or PDF)</label>
+                    <div className="relative">
+                      <input 
+                        type="file" 
+                        accept={moduleForm.typeContenu === 'VIDEO' ? 'video/mp4,video/webm,video/ogg' : 'application/pdf'}
+                        onChange={handleFileUpload} 
+                        className="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] transition file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-[#0066FF] hover:file:bg-blue-100" 
+                      />
+                      {uploadingFile && <div className="absolute right-3 top-2.5 flex items-center text-xs font-bold text-[#0066FF]"><Loader2 size={16} className="animate-spin mr-1" /> Uploading...</div>}
+                    </div>
+                    {moduleForm.contenuUrl && (
+                      <p className="text-xs text-emerald-600 mt-2 font-semibold">✓ File uploaded: <a href={moduleForm.contenuUrl} target="_blank" className="underline truncate inline-block max-w-[200px] align-bottom" rel="noreferrer">{moduleForm.contenuUrl.split('/').pop()}</a></p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-700 mb-2">Duration (mins)</label>
@@ -272,8 +321,8 @@ export default function CourseEditor() {
             
             <div className="px-8 py-5 border-t border-slate-100 bg-slate-50/50 flex justify-end gap-3">
               <button type="button" onClick={() => setShowModal(false)} className="px-5 py-2.5 text-sm font-bold text-slate-500 hover:text-slate-700 hover:bg-slate-200/50 rounded-xl transition">Cancel</button>
-              <button disabled={saving} onClick={handleSaveModule} className="px-6 py-2.5 bg-[#0066FF] text-white text-sm font-bold rounded-xl shadow-lg shadow-[#0066FF]/20 hover:bg-blue-700 transition disabled:opacity-70 flex items-center gap-2">
-                {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+              <button disabled={saving || uploadingFile} onClick={handleSaveModule} className="px-6 py-2.5 bg-[#0066FF] text-white text-sm font-bold rounded-xl shadow-lg shadow-[#0066FF]/20 hover:bg-blue-700 transition disabled:opacity-70 flex items-center gap-2">
+                {(saving || uploadingFile) ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
                 {saving ? 'Saving...' : 'Save Module'}
               </button>
             </div>
