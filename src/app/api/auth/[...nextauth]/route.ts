@@ -38,11 +38,14 @@ export const authOptions: NextAuthOptions = {
               email: user.email,
               profil: user.profil,
               statutAcces: user.statutAcces,
-              photo: user.photo,
               telephone: user.telephone,
               poste: user.poste,
               role: user.role
             };
+          }
+          
+          if (res.status === 403) {
+            throw new Error(user.error || "Compte inactif");
           }
           
           return null; 
@@ -71,12 +74,14 @@ export const authOptions: NextAuthOptions = {
             })
           });
           const dbUser = await res.json();
+          if (res.status === 403) {
+            throw new Error(dbUser.error || "Compte inactif");
+          }
           if (res.ok && dbUser) {
             // Associer backend au user Google
             user.id = dbUser.id;
             (user as any).profil = dbUser.profil;
             (user as any).statutAcces = dbUser.statutAcces;
-            (user as any).photo = dbUser.photo;
             (user as any).telephone = dbUser.telephone;
             (user as any).poste = dbUser.poste;
             (user as any).role = dbUser.role;
@@ -93,7 +98,6 @@ export const authOptions: NextAuthOptions = {
       // if user update son profil
       if (trigger === "update" && session) {
         if (session.name) token.name = session.name;
-        if (session.photo !== undefined) token.photo = session.photo;
         if (session.telephone !== undefined) token.telephone = session.telephone;
         if (session.poste !== undefined) token.poste = session.poste;
       }
@@ -102,7 +106,6 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.profil = (user as any).profil;
         token.statutAcces = (user as any).statutAcces;
-        token.photo = (user as any).photo;
         token.telephone = (user as any).telephone;
         token.poste = (user as any).poste;
         token.role = (user as any).role;
@@ -114,7 +117,6 @@ export const authOptions: NextAuthOptions = {
         (session.user as any).id = token.id;
         (session.user as any).profil = token.profil;
         (session.user as any).statutAcces = token.statutAcces;
-        (session.user as any).photo = token.photo;
         (session.user as any).telephone = token.telephone;
         (session.user as any).poste = token.poste;
         (session.user as any).role = token.role;

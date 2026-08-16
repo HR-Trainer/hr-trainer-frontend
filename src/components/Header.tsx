@@ -1,13 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import { useSession } from 'next-auth/react';
 import { Zap, BrainCircuit, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import LanguageSwitcher from './LanguageSwitcher';
+import { ThemeToggle } from './ThemeToggle';
 
 export default function Header() {
   const [showBanner, setShowBanner] = useState(true);
   const { data: session } = useSession();
+  const t = useTranslations('Header');
 
   return (
     <div className="sticky top-0 z-50 w-full flex flex-col">
@@ -27,10 +31,10 @@ export default function Header() {
       )}
 
       {/* Navbar */}
-      <nav className="border-b border-slate-100 bg-white">
+      <nav className="border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 transition-colors">
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
           {/* Logo */}
-          <Link href="/" className="text-xl font-bold flex items-center gap-2 text-slate-900 hover:opacity-90 transition">
+          <Link href="/" className="text-xl font-bold flex items-center gap-2 text-slate-900 dark:text-white hover:opacity-90 transition">
             <div className="bg-[#0066FF] p-1.5 rounded-lg">
               <BrainCircuit size={20} className="text-white" />
             </div>
@@ -38,23 +42,26 @@ export default function Header() {
           </Link>
           
           {/* Center Links */}
-          <div className="hidden md:flex items-center gap-8 text-[14px] font-bold text-slate-500">
-            <Link href="/formations" className="hover:text-slate-900 transition">Courses</Link>
-            <Link href="/entreprises" className="hover:text-slate-900 transition">Enterprises</Link>
-            <Link href="/a-propos" className="hover:text-slate-900 transition">About</Link>
-            <Link href="/contact" className="hover:text-slate-900 transition">Contact</Link>
+          <div className="hidden md:flex items-center gap-8 text-[14px] font-bold text-slate-500 dark:text-slate-400">
+            <Link href="/formations" className="hover:text-slate-900 dark:hover:text-white transition">{t('courses')}</Link>
+            <Link href="/entreprises" className="hover:text-slate-900 dark:hover:text-white transition">{t('companies')}</Link>
+            <Link href="/a-propos" className="hover:text-slate-900 dark:hover:text-white transition">{t('about')}</Link>
+            <Link href="/contact" className="hover:text-slate-900 dark:hover:text-white transition">{t('contact')}</Link>
           </div>
           
           {/* Right Actions */}
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
+            <ThemeToggle />
+            <LanguageSwitcher />
+
             {session ? (
-              <Link href="/mon-espace" className="bg-[#0066FF] text-white px-5 py-2.5 rounded-full text-[14px] font-bold hover:bg-blue-700 transition shadow-sm">
-                My Space
+              <Link href={(session.user as any)?.role === 'ADMIN' ? '/admin/dashboard' : '/mon-espace'} className="bg-[#0066FF] text-white px-5 py-2.5 rounded-full text-[14px] font-bold hover:bg-blue-700 transition shadow-sm">
+                {t('dashboard')}
               </Link>
             ) : (
               <>
-                <Link href="/connexion" className="text-[14px] font-bold text-slate-500 hover:text-slate-900 transition hidden sm:block">
-                  Sign in
+                <Link href="/connexion" className="text-[14px] font-bold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition hidden sm:block">
+                  {t('login')}
                 </Link>
                 <Link href="/inscription" className="bg-[#0066FF] text-white px-5 py-2.5 rounded-full text-[14px] font-bold hover:bg-blue-700 transition shadow-sm">
                   Get Started

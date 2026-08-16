@@ -1,28 +1,34 @@
 import { withAuth } from "next-auth/middleware";
-import { NextResponse } from "next/server";
+import createMiddleware from 'next-intl/middleware';
+import { NextRequest } from "next/server";
+import { routing } from './i18n/routing';
 
-export default withAuth(
+const intlMiddleware = createMiddleware(routing);
+
+const authMiddleware = withAuth(
   function middleware(req) {
-    // une session valide
-    return NextResponse.next();
+    return intlMiddleware(req);
   },
   {
     callbacks: {
-      // accès  si un token de session existe
       authorized: ({ token }) => !!token,
     },
     pages: {
-      // page de connexion si user n'est pas connecté
       signIn: '/connexion',
     },
   }
 );
 
-// définir routes protégées par ce middleware
+export default function middleware(req: NextRequest) {
+  const isProtectedPath = /^\/([a-z]{2}\/)?(mon-espace|profil|dashboard-rh)/.test(req.nextUrl.pathname);
+
+  if (isProtectedPath) {
+    return (authMiddleware as any)(req);
+  }
+
+  return intlMiddleware(req);
+}
+
 export const config = {
-  matcher: [
-    "/mon-espace/:path*",  
-    "/profil/:path*",     
-    "/dashboard-rh/:path*",
-  ],
+  matcher: ['/((?!api|_next|.*\\..*).*)']
 };
