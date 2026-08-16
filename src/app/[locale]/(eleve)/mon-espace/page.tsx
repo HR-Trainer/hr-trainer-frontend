@@ -87,7 +87,7 @@ export default function MonEspace() {
             <BookOpen size={20} />
           </div>
           <div className="text-2xl font-black text-slate-900 dark:text-white">{data?.inscriptions?.length || 0}</div>
-          <div className="text-xs font-bold text-slate-400 uppercase tracking-wide mt-1">{t('statEnrolled', { fallback: 'Formations' })}</div>
+          <div className="text-xs font-bold text-slate-400 uppercase tracking-wide mt-1">{t('statEnrolled')}</div>
         </div>
         
         <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col justify-center transition-colors">
@@ -97,7 +97,7 @@ export default function MonEspace() {
           <div className="text-2xl font-black text-slate-900 dark:text-white">
             {data?.inscriptions?.length ? Math.round(data.inscriptions.reduce((acc: number, cur: any) => acc + (cur.progression || 0), 0) / data.inscriptions.length) : 0} %
           </div>
-          <div className="text-xs font-bold text-slate-400 uppercase tracking-wide mt-1">{t('statProgress', { fallback: 'Progression globale' })}</div>
+          <div className="text-xs font-bold text-slate-400 uppercase tracking-wide mt-1">{t('statProgress')}</div>
         </div>
 
         <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col justify-center transition-colors">
@@ -107,7 +107,7 @@ export default function MonEspace() {
           <div className="text-2xl font-black text-slate-900 dark:text-white">
             {data?.inscriptions?.filter((i: any) => i.progression === 100)?.length || 0}
           </div>
-          <div className="text-xs font-bold text-slate-400 uppercase tracking-wide mt-1">{t('statCompleted', { fallback: 'Modules Terminés' })}</div>
+          <div className="text-xs font-bold text-slate-400 uppercase tracking-wide mt-1">{t('statCompleted')}</div>
         </div>
 
         <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col justify-center transition-colors">
@@ -115,7 +115,7 @@ export default function MonEspace() {
             <Award size={20} />
           </div>
           <div className="text-2xl font-black text-slate-900 dark:text-white">{data?.stats?.attestations || 0}</div>
-          <div className="text-xs font-bold text-slate-400 uppercase tracking-wide mt-1">{t('statCerts', { fallback: 'Certificats par module' })}</div>
+          <div className="text-xs font-bold text-slate-400 uppercase tracking-wide mt-1">{t('statCerts')}</div>
         </div>
       </div>
 
