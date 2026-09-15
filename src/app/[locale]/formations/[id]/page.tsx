@@ -4,6 +4,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import EnrollButton from './EnrollButton';
 import ModuleList from './ModuleList';
+import RatingSection from './RatingSection';
 
 async function getFormation(id: string) {
   try {
@@ -186,6 +187,8 @@ export default async function FormationDetail({ params }: { params: Promise<{ id
               </div>
             </div>
 
+            <RatingSection formationId={formation.id} evaluations={formation.evaluations || []} />
+
           </div>
 
           {/* Right Column (Sticky Sidebar) */}
@@ -206,13 +209,13 @@ export default async function FormationDetail({ params }: { params: Promise<{ id
               {/* Card Body */}
               <div className="p-6">
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-[24px] font-extrabold text-slate-900">{isFree ? 'Free' : 'Paid'}</h2>
+                  <h2 className="text-[24px] font-extrabold text-slate-900">{isFree ? 'Gratuit' : (formation.prix ? `${formation.prix} €` : 'Payant')}</h2>
                   <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full uppercase tracking-wider">
                     {levelEn}
                   </span>
                 </div>
                 
-                <EnrollButton isFree={isFree} />
+                <EnrollButton isFree={isFree} formationId={formation.id} prix={formation.prix} />
 
                 <div className="mt-5 space-y-3">
                   <div className="flex gap-3 items-center text-[13px] font-bold text-slate-500">

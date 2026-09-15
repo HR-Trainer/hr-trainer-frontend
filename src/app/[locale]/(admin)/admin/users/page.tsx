@@ -1,5 +1,4 @@
-"use client";
-
+'use client';
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { Loader2, UserX, UserCheck, Shield, Mail, Phone, Building, Trash2, X, AlertTriangle, TrendingUp } from 'lucide-react';
@@ -9,7 +8,7 @@ export default function AdminUsers() {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Modals state
+  // modals state
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [userToDelete, setUserToDelete] = useState<any>(null);
@@ -18,7 +17,7 @@ export default function AdminUsers() {
   const [progressData, setProgressData] = useState<any[]>([]);
   const [loadingProgress, setLoadingProgress] = useState(false);
 
-  // Add User Form State
+  // add User form state
   const [newUser, setNewUser] = useState({ email: '', password: '', nom: '', profil: 'PARTICULIER', role: 'ELEVE' });
   const [addStatus, setAddStatus] = useState<'idle' | 'loading' | 'error'>('idle');
 
@@ -177,7 +176,7 @@ export default function AdminUsers() {
                   <td className="px-6 py-4">
                     <button 
                       onClick={() => toggleUserPremium(user.id, user.statutAcces)}
-                      className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition ${user.statutAcces === 'PAYANT' ? 'bg-amber-100 text-amber-700 hover:bg-amber-200' : 'bg-slate-100 text-slate-600 dark:text-gray-300 hover:bg-slate-200'}`}
+                      className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition ${user.statutAcces === 'PAYANT' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-500/20' : 'bg-slate-100 text-slate-600 dark:bg-slate-800/80 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800'}`}
                     >
                       {user.statutAcces === 'PAYANT' ? 'Premium' : 'Free'}
                     </button>
@@ -228,7 +227,7 @@ export default function AdminUsers() {
         </div>
       </div>
 
-      {/* Add User Modal */}
+      {/* add user modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
           <div className="bg-white dark:bg-[#111827] rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
@@ -279,7 +278,7 @@ export default function AdminUsers() {
         </div>
       )}
 
-      {/* Delete User Modal (Pro Design) */}
+      {/* delete user modal  */}
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
           <div className="bg-white dark:bg-[#111827] rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95 duration-200">
@@ -310,7 +309,7 @@ export default function AdminUsers() {
         </div>
       )}
 
-      {/* Progress Modal */}
+      {/* progress modal */}
       {showProgressModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
           <div className="bg-white dark:bg-[#111827] rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
@@ -342,7 +341,7 @@ export default function AdminUsers() {
                         ></div>
                       </div>
 
-                      {/* Quiz Scores */}
+                      {/* quiz scores */}
                       {course.quizScores && course.quizScores.length > 0 && (
                         <div className="pt-4 border-t border-slate-100 dark:border-gray-800">
                           <h4 className="text-xs font-bold text-slate-500 dark:text-gray-400 mb-3 uppercase tracking-wider">Quiz Scores</h4>

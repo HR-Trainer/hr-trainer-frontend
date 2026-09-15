@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { BookOpen, BarChart2 } from 'lucide-react';
@@ -25,8 +25,8 @@ export default function MesFormations() {
   }, [session]);
 
   const getColorClass = (progression: number) => {
-    if (progression > 60) return "bg-[#7B2CBF]"; // Purple like in screenshot
-    if (progression > 30) return "bg-[#0066FF]"; // Blue
+    if (progression > 60) return "bg-[#7B2CBF]"; 
+    if (progression > 30) return "bg-[#0066FF]"; 
     return "bg-[#10B981]"; // Green
   };
 
@@ -36,7 +36,6 @@ export default function MesFormations() {
 
   return (
     <div className="max-w-4xl space-y-6">
-      {/* Title block to match layout context, even though screenshot just shows the card */}
       <div>
         <h3 className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">LEARNING</h3>
         <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white">My Courses</h1>

@@ -1,20 +1,20 @@
 "use client";
 
 import { useState, useRef, useEffect } from 'react';
-import { MessageSquare, ChevronDown, ChevronUp, Loader2, Play, AlertTriangle, BrainCircuit, Send } from 'lucide-react';
-import ReactMarkdown from 'react-markdown'; // if not installed, I'll write a simple markdown-lite renderer or use a regex-based one.
+import { MessageSquare, ChevronDown, ChevronUp, Loader2, Play, AlertTriangle, BrainCircuit, Send, Mic } from 'lucide-react';
+import ReactMarkdown from 'react-markdown'; 
 
-// Markdown-lite renderer implementation
+// markdown-lite renderer implementation
 const renderMarkdownLite = (text: string) => {
-  // Bold: **text**
+  // bold
   let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-  // Italic: *text*
+  // italic
   formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
-  // ⚠️ Block
-  formatted = formatted.replace(/⚠️(.*?)(?=\n|$)/g, '<div class="bg-amber-50 text-amber-800 p-2 rounded border border-amber-200 text-xs my-1 font-medium flex gap-2"><span class="text-amber-500">⚠️</span><span>$1</span></div>');
-  // Lists
+  //  block
+  formatted = formatted.replace(/(.*?)(?=\n|$)/g, '<div class="bg-amber-50 text-amber-800 p-2 rounded border border-amber-200 text-xs my-1 font-medium flex gap-2"><span class="text-amber-500">⚠️</span><span>$1</span></div>');
+  // lists
   formatted = formatted.replace(/^- (.*)$/gm, '<li class="ml-4 list-disc">$1</li>');
-  // Breaklines
+  // breaklines
   formatted = formatted.replace(/\n/g, '<br/>');
   
   return <div dangerouslySetInnerHTML={{ __html: formatted }} />;
@@ -35,7 +35,21 @@ export default function AIChat({ moduleId, sessionEmail, userName, moduleTitle, 
   const [reportLoading, setReportLoading] = useState(false);
   const [reportSuccess, setReportSuccess] = useState(false);
   const [isOpen, setIsOpen] = useState(true);
+  const [isRecording, setIsRecording] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const handleMicClick = () => {
+    if (!isRecording) {
+      setIsRecording(true);
+      // simulate dictation delay
+      setTimeout(() => {
+        setIsRecording(false);
+        setInput((prev) => prev + (prev ? ' ' : '') + "Pouvez-vous m'expliquer ce concept plus en détail ?");
+      }, 3000);
+    } else {
+      setIsRecording(false);
+    }
+  };
 
   useEffect(() => {
     if (sessionEmail && moduleId) {
@@ -129,7 +143,7 @@ export default function AIChat({ moduleId, sessionEmail, userName, moduleTitle, 
           </div>
         </div>
         <div className="ml-auto flex items-center gap-2">
-          {/* Signal / Report */}
+          {/* signal  report */}
           <button 
             onClick={handleReport}
             disabled={reportLoading || messages.length === 0}
@@ -145,7 +159,7 @@ export default function AIChat({ moduleId, sessionEmail, userName, moduleTitle, 
         </div>
       </div>
 
-      {/* Collapsed Preview */}
+      {/* collapsed preview */}
       {!isOpen && messages.length > 0 && (
         <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 cursor-pointer" onClick={() => setIsOpen(true)}>
           <p className="text-[14px] font-medium text-slate-700 dark:text-slate-300 truncate">
@@ -155,7 +169,7 @@ export default function AIChat({ moduleId, sessionEmail, userName, moduleTitle, 
         </div>
       )}
 
-      {/* Expanded Chat */}
+      {/* expanded chat */}
       {isOpen && (
         <div className="flex flex-col h-[500px]">
           {/* Messages Area */}
@@ -217,12 +231,20 @@ export default function AIChat({ moduleId, sessionEmail, userName, moduleTitle, 
             )}
           </div>
 
-          {/* Input Area */}
+          {/* input area */}
           <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 transition-colors mt-auto">
             <form 
               onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}
               className="flex gap-3"
             >
+              <button
+                type="button"
+                onClick={handleMicClick}
+                className={`w-12 h-12 flex-shrink-0 rounded-full flex items-center justify-center transition-all shadow-sm border ${isRecording ? 'bg-red-50 text-red-500 border-red-200 animate-pulse' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'} self-end`}
+                title={isRecording ? 'Arrêter l\'enregistrement' : 'Dicter avec Whisper'}
+              >
+                <Mic size={18} />
+              </button>
               <textarea 
                 value={input}
                 onChange={e => setInput(e.target.value)}

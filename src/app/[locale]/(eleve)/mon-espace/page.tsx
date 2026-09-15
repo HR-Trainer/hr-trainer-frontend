@@ -1,20 +1,23 @@
-"use client";
+'use client';
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { Link } from '@/i18n/routing';
-import { BookOpen, TrendingUp, Clock, Award, ChevronRight, CheckCircle2, ArrowRight } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { BookOpen, TrendingUp, Clock, Award, ChevronRight, CheckCircle2, ArrowRight, Trophy, Download, Bot } from 'lucide-react';
+import { useTranslations, useLocale } from 'next-intl';
 import ProgressChart from '@/components/dashboard/ProgressChart';
 
 export default function MonEspace() {
   const { data: session } = useSession();
   const t = useTranslations('Dashboard');
+  const locale = useLocale();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [coachMessage, setCoachMessage] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<{nom: string, photo: string | null} | null>(null);
 
   useEffect(() => {
     if (session?.user?.email) {
+      // fetch dashboard data
       fetch(`http://localhost:5000/api/eleve/dashboard?email=${session.user.email}`)
         .then(res => res.json())
         .then(data => {
@@ -25,6 +28,14 @@ export default function MonEspace() {
           console.error(err);
           setLoading(false);
         });
+        
+      // Fetch AI coach message asynchronously
+      fetch(`http://localhost:5000/api/eleve/dashboard/coach-message?email=${session.user.email}&locale=${locale}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.message) setCoachMessage(data.message);
+        })
+        .catch(err => console.error('Coach message error:', err));
     }
   }, [session]);
 
@@ -79,6 +90,22 @@ export default function MonEspace() {
           </Link>
         </div>
       </div>
+
+      {/* AI Coach Widget */}
+      {coachMessage && (
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-900 border border-blue-100 dark:border-slate-700 rounded-2xl p-5 shadow-sm flex gap-4 items-start relative overflow-hidden transition-colors">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500 opacity-5 rounded-full -translate-y-1/2 translate-x-1/3"></div>
+          <div className="w-12 h-12 rounded-full bg-[#0066FF] flex items-center justify-center text-white shrink-0 shadow-md">
+            <Bot size={24} />
+          </div>
+          <div className="relative z-10">
+            <h3 className="text-sm font-bold text-blue-900 dark:text-blue-400 mb-1 flex items-center gap-2">Le Mot du Coach IA <span className="flex h-2 w-2 relative"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span></span></h3>
+            <p className="text-[15px] font-medium text-slate-700 dark:text-slate-300 leading-relaxed">
+              "{coachMessage}"
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
@@ -172,6 +199,50 @@ export default function MonEspace() {
               </div>
             );
           })}
+        </div>
+      </div>
+
+      {/* Mes Succès / Certifications */}
+      <div className="bg-gradient-to-br from-slate-50 to-indigo-50 dark:from-slate-900 dark:to-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 sm:p-8 transition-colors">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md">
+            <Trophy size={20} />
+          </div>
+          <div>
+            <h2 className="text-xl font-extrabold text-slate-900 dark:text-white leading-tight">Mes Succès & Certifications</h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Vos récompenses pour les formations terminées.</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {data?.inscriptions?.filter((i: any) => i.progression === 100).map((ins: any, index: number) => (
+            <div key={index} className="bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-700 rounded-xl p-5 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative overflow-hidden group hover:border-indigo-300 transition-colors">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-50 dark:bg-indigo-900/20 rounded-bl-[100px] -z-0 opacity-50 group-hover:scale-110 transition-transform"></div>
+              
+              <div className="relative z-10 flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="p-1.5 bg-indigo-100 text-indigo-600 dark:bg-indigo-900/50 dark:text-indigo-400 rounded-lg">
+                    <Award size={16} />
+                  </div>
+                  <h3 className="font-bold text-slate-900 dark:text-white truncate">{ins.formation?.titre || 'Formation'}</h3>
+                </div>
+                <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                  <CheckCircle2 size={14} /> Terminée à 100%
+                </p>
+              </div>
+              
+              <div className="relative z-10 flex-shrink-0 w-full sm:w-auto mt-2 sm:mt-0">
+                <Link href="/mon-espace/attestations" className="inline-flex w-full items-center justify-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 dark:text-slate-900 text-white text-xs font-bold rounded-lg shadow-sm transition">
+                  <Download size={14} /> Télécharger (PDF)
+                </Link>
+              </div>
+            </div>
+          ))}
+          {(!data?.inscriptions || data.inscriptions.filter((i: any) => i.progression === 100).length === 0) && (
+             <div className="col-span-full py-4 text-center">
+               <p className="text-sm text-amber-700 dark:text-amber-500 font-medium">Complétez une formation à 100% pour débloquer votre première attestation !</p>
+             </div>
+          )}
         </div>
       </div>
 

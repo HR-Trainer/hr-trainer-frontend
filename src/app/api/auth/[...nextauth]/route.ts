@@ -100,6 +100,7 @@ export const authOptions: NextAuthOptions = {
         if (session.name) token.name = session.name;
         if (session.telephone !== undefined) token.telephone = session.telephone;
         if (session.poste !== undefined) token.poste = session.poste;
+        // On ne stocke pas la photo dans le token JWT (base64 trop lourd pour le cookie -> Error 431)
       }
       
       if (user) {
@@ -120,6 +121,7 @@ export const authOptions: NextAuthOptions = {
         (session.user as any).telephone = token.telephone;
         (session.user as any).poste = token.poste;
         (session.user as any).role = token.role;
+        // On ne recupere pas la photo via le token. Le client l'obtiendra via localStorage ou un fetch.
       }
       return session;
     }

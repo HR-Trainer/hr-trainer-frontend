@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import { useState, useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import { Award, Download, Loader2 } from 'lucide-react';
@@ -32,7 +32,7 @@ export default function Attestations() {
     setDownloading(ins.id);
     setCertData(ins);
     
-    // Attendre que le DOM se mette à jour avec les données du cert
+    // attendre  DOM se mette à jour avec les données 
     setTimeout(async () => {
       if (certRef.current) {
         try {
@@ -107,17 +107,17 @@ export default function Attestations() {
         )}
       </div>
 
-      {/* Hidden Certificate Template for PDF generation */}
+      {/* certificate template for PDF generation */}
       <div className="overflow-hidden h-0 w-0 absolute opacity-0 pointer-events-none">
         {certData && (
           <div ref={certRef} className="w-[1123px] h-[794px] bg-white dark:bg-[#111827] p-[40px] box-border relative font-sans">
             <div className="w-full h-full border-[10px] border-[#0066FF] p-[40px] box-border relative flex flex-col items-center justify-center text-center">
               
-              {/* Corner Decorations */}
+              {/* corner decorations */}
               <div className="absolute top-0 left-0 w-32 h-32 border-t-[15px] border-l-[15px] border-[#00bfff] -translate-x-[10px] -translate-y-[10px]"></div>
               <div className="absolute bottom-0 right-0 w-32 h-32 border-b-[15px] border-r-[15px] border-[#00bfff] translate-x-[10px] translate-y-[10px]"></div>
 
-              {/* Logo / Header */}
+              {/* logo  header */}
               <div className="absolute top-[60px] flex flex-col items-center">
                 <div className="w-16 h-16 bg-[#0066FF] rounded-2xl flex items-center justify-center mb-4">
                   <span className="text-white font-black text-3xl">H</span>
@@ -125,24 +125,24 @@ export default function Attestations() {
                 <h2 className="text-2xl font-black tracking-widest text-slate-800 dark:text-gray-100 uppercase">HR-Trainer Academy</h2>
               </div>
 
-              {/* Title */}
+              {/* title */}
               <h1 className="text-[60px] font-black text-[#0066FF] mt-12 mb-8 uppercase tracking-widest">Certificate of Completion</h1>
               
               <p className="text-2xl text-slate-500 dark:text-gray-400 font-medium mb-6">successfully awarded to</p>
               
-              {/* Name */}
+              {/* name */}
               <h2 className="text-[48px] font-extrabold text-slate-900 dark:text-white mb-12 border-b-2 border-slate-200 dark:border-gray-700 pb-4 px-12 inline-block">
                 {session?.user?.name || 'Learner Name'}
               </h2>
               
               <p className="text-2xl text-slate-500 dark:text-gray-400 font-medium mb-6">for attending and completing the course:</p>
               
-              {/* Course */}
+              {/* course */}
               <h3 className="text-[32px] font-bold text-[#0066FF] mb-16 max-w-[800px] leading-tight">
                 {certData.formation.titre}
               </h3>
 
-              {/* Footer details */}
+              {/* footer details */}
               <div className="flex justify-between items-end w-full px-12 absolute bottom-[80px]">
                 <div className="text-left">
                   <p className="text-lg text-slate-400 font-bold mb-2">Date Earned</p>

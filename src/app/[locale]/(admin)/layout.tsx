@@ -1,5 +1,4 @@
-"use client";
-
+'use client';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -29,25 +28,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
 
     if (session?.user?.email) {
-      // Fetch notifications
+      // fetch notifications
       fetch(`http://localhost:5000/api/notifications?email=${session.user.email}`)
         .then(res => res.json())
         .then(data => setNotifications(data))
         .catch(console.error);
 
-      // Fetch admin profile for dynamic navbar updates
+      // fetch admin profile for  updates
       fetch(`http://localhost:5000/api/eleve/dashboard?email=${session.user.email}`)
         .then(res => res.json())
         .then(data => {
-          // The endpoint might not return full user directly, wait, let's use the eleve dashboard or create a generic profile fetch.
-          // Wait, the settings page updates the user via `PUT /api/profil`. 
-          // Let's just use window events or local storage for simplicity in MVP.
         })
         .catch(console.error);
     }
   }, [status, session, router]);
 
-  // Listen for profile updates
+  // for profile updates
   useEffect(() => {
     const handleProfileUpdate = () => {
       if (session?.user?.email) {
@@ -102,10 +98,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className="h-screen bg-slate-50 dark:bg-[#1f2937] dark:bg-[#030712] flex overflow-hidden font-sans transition-colors">
       
-      {/* Sidebar */}
+      {/* sidebar */}
       <aside className="w-[280px] bg-white dark:bg-[#111827] dark:bg-[#030712] border-r border-slate-200 dark:border-gray-700 dark:border-gray-800 flex flex-col hidden md:flex flex-shrink-0 transition-colors">
         
-        {/* Logo */}
+        {/* logo */}
         <div className="h-[72px] px-6 flex items-center border-b border-slate-100 dark:border-gray-800 dark:border-gray-800">
           <Link href="/" className="flex items-center gap-2">
             <div className="w-8 h-8 bg-[#0066FF] rounded-lg flex items-center justify-center">
@@ -145,10 +141,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
       </aside>
 
-      {/* Main Content Area */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden relative">
         
-        {/* Header */}
+        {/* header */}
         <header className="h-[72px] bg-white dark:bg-[#111827] dark:bg-[#030712] border-b border-slate-200 dark:border-gray-700 dark:border-gray-800 flex items-center justify-between px-6 md:px-8 flex-shrink-0 z-10 transition-colors">
           <div className="flex items-center gap-2 text-sm">
             <span className="text-slate-400 font-medium hidden sm:inline">Admin Space</span>
@@ -186,7 +181,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 )}
               </button>
 
-              {/* Notifications Dropdown */}
+              {/* notifications dropdown */}
               {showNotifs && (
                 <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-[#111827] rounded-2xl shadow-xl border border-slate-100 dark:border-gray-800 overflow-hidden z-50">
                   <div className="p-4 border-b border-slate-100 dark:border-gray-800 flex justify-between items-center">
@@ -228,7 +223,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
         </header>
 
-        {/* Page Content */}
+        {/* page content */}
         <main className="flex-1 overflow-y-auto p-6 md:p-8 relative">
           {children}
         </main>

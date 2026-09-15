@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { Award, BellRing, FileText, CheckCircle2 } from 'lucide-react';
@@ -15,13 +15,13 @@ export default function AdminNotifications() {
 
   useEffect(() => {
     if (session?.user?.email) {
-      // Load preferences from localStorage
+      // preferences from localStorage
       const savedPrefs = localStorage.getItem(`admin_prefs_${session.user.email}`);
       if (savedPrefs) {
         setPrefs(JSON.parse(savedPrefs));
       }
 
-      // Fetch real notifications
+      // fetch real notifications
       fetchNotifications();
     }
   }, [session]);

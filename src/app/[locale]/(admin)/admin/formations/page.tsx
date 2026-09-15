@@ -1,5 +1,4 @@
-"use client";
-
+'use client';
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { Loader2, Plus, Edit, Trash2, Eye, EyeOff, AlertTriangle, X, Settings } from 'lucide-react';
@@ -10,14 +9,14 @@ export default function AdminFormations() {
   const [formations, setFormations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Modals state
+  // modals state
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [formationToDelete, setFormationToDelete] = useState<any>(null);
   
   const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
 
-  // Add Course Form State
+  // add Course Form State
   const [newCourse, setNewCourse] = useState({ 
     titre: '', 
     description: '', 
@@ -150,7 +149,7 @@ export default function AdminFormations() {
         <button 
           onClick={() => {
             setEditingCourseId(null);
-            setNewCourse({ titre: '', description: '', niveau: 'DEBUTANT', duree: 4, gratuit: true, publie: false });
+            setNewCourse({ titre: '', description: '', niveau: 'DEBUTANT', duree: 4, gratuit: true, publie: false, imageUrl: '' });
             setShowAddModal(true);
           }}
           className="flex items-center gap-2 bg-[#0066FF] text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-md shadow-[#0066FF]/20 hover:bg-blue-700 transition"
@@ -180,10 +179,10 @@ export default function AdminFormations() {
                     <div className="text-xs text-slate-400 truncate max-w-xs">{formation.description}</div>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="bg-slate-100 text-slate-600 dark:text-gray-300 px-2.5 py-1 rounded-md text-xs font-semibold">{formation.niveau}</span>
+                    <span className="bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-md text-xs font-semibold">{formation.niveau}</span>
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider ${formation.gratuit ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                    <span className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider ${formation.gratuit ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400'}`}>
                       {formation.gratuit ? 'Free' : 'Premium'}
                     </span>
                   </td>
@@ -254,7 +253,7 @@ export default function AdminFormations() {
         </div>
       </div>
 
-      {/* Add Course Modal */}
+      {/* add Course Modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
           <div className="bg-white dark:bg-[#111827] rounded-[2rem] shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
@@ -307,13 +306,36 @@ export default function AdminFormations() {
               </div>
 
               <div className="grid grid-cols-2 gap-5 pt-2">
-                <label className="flex items-center gap-3 cursor-pointer group">
-                  <div className={`w-5 h-5 rounded flex items-center justify-center border transition ${newCourse.gratuit ? 'bg-[#0066FF] border-[#0066FF]' : 'bg-white dark:bg-[#111827] border-slate-300 group-hover:border-[#0066FF]'}`}>
-                    {newCourse.gratuit && <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
-                  </div>
-                  <span className="text-sm font-bold text-slate-700 dark:text-gray-200">Free Access</span>
-                  <input type="checkbox" checked={newCourse.gratuit} onChange={e => setNewCourse({...newCourse, gratuit: e.target.checked})} className="hidden" />
-                </label>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-gray-200 mb-1.5">Tarification</label>
+                  <select 
+                    value={newCourse.gratuit ? "true" : "false"} 
+                    onChange={e => setNewCourse({...newCourse, gratuit: e.target.value === "true"})} 
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-[#1f2937] border border-slate-200 dark:border-gray-700 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] transition mb-4"
+                  >
+                    <option value="true">Gratuit (Libre d'accès)</option>
+                    <option value="false">Payant (Premium)</option>
+                  </select>
+                  
+                  {!newCourse.gratuit && (
+                    <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                      <label className="block text-xs font-bold text-slate-700 dark:text-gray-200 mb-1.5">Prix de la formation (€)</label>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">€</span>
+                        <input 
+                          type="number" 
+                          min="1" 
+                          step="0.01"
+                          required={!newCourse.gratuit}
+                          value={newCourse.prix || ''} 
+                          onChange={e => setNewCourse({...newCourse, prix: parseFloat(e.target.value) || 0})} 
+                          className="w-full pl-8 pr-4 py-3 bg-slate-50 dark:bg-[#1f2937] border border-slate-200 dark:border-gray-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] transition" 
+                          placeholder="Ex: 29.99" 
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
                 
                 <label className="flex items-center gap-3 cursor-pointer group">
                   <div className={`w-5 h-5 rounded flex items-center justify-center border transition ${newCourse.publie ? 'bg-[#0066FF] border-[#0066FF]' : 'bg-white dark:bg-[#111827] border-slate-300 group-hover:border-[#0066FF]'}`}>
@@ -337,7 +359,7 @@ export default function AdminFormations() {
         </div>
       )}
 
-      {/* Delete Course Modal */}
+      {/* delete Course Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
           <div className="bg-white dark:bg-[#111827] rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95 duration-200">

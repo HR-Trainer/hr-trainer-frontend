@@ -1,16 +1,17 @@
-"use client";
-
+'use client';
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { Users, BookOpen, Star, Loader2, CreditCard } from 'lucide-react';
+import { Users, BookOpen, Star, Loader2, CreditCard, Bot } from 'lucide-react';
 
 export default function AdminDashboard() {
   const { data: session } = useSession();
   const [stats, setStats] = useState<any>(null);
+  const [aiSummary, setAiSummary] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (session?.user?.email) {
+      // fetch basic stats
       fetch(`http://localhost:5000/api/admin/dashboard?adminEmail=${session.user.email}`)
         .then(res => res.json())
         .then(data => {
@@ -21,6 +22,14 @@ export default function AdminDashboard() {
           console.error(err);
           setLoading(false);
         });
+
+      // fetch AI Summary asynchronously
+      fetch(`http://localhost:5000/api/admin/analytics/ai-summary?adminEmail=${session.user.email}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.summary) setAiSummary(data.summary);
+        })
+        .catch(console.error);
     }
   }, [session]);
 
@@ -68,6 +77,26 @@ export default function AdminDashboard() {
           <div className="text-xs font-bold text-slate-400 uppercase tracking-wide mt-1">Premium Subs</div>
         </div>
       </div>
+
+      {/* AI Insights Widget */}
+      {aiSummary && (
+        <div className="bg-gradient-to-r from-violet-600 to-indigo-700 rounded-2xl p-6 shadow-lg shadow-indigo-500/20 text-white mt-8 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -translate-y-1/2 translate-x-1/3"></div>
+          <div className="relative z-10 flex flex-col sm:flex-row gap-6 items-start sm:items-center">
+            <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center shrink-0 border border-white/20">
+              <Bot size={28} className="text-white" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold mb-2 flex items-center gap-2">
+                Insights IA des conversations <span className="text-xs bg-indigo-500/50 px-2 py-1 rounded-full border border-indigo-400/30">Cette semaine</span>
+              </h2>
+              <p className="text-indigo-100 font-medium leading-relaxed text-[15px]">
+                "{aiSummary}"
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="bg-white dark:bg-[#111827] p-8 rounded-[1.5rem] border border-slate-100 dark:border-gray-800 shadow-sm mt-8">
         <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-6">Recent User Registrations</h2>
