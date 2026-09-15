@@ -1,10 +1,9 @@
-"use client";
-
+'use client';
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft, Plus, Trash2, Save, CheckCircle, Loader2 } from 'lucide-react';
+import { ChevronLeft, Plus, Trash2, Save, CheckCircle, Loader2, Sparkles } from 'lucide-react';
 
 export default function QuizBuilder() {
   const { data: session } = useSession();
@@ -15,9 +14,34 @@ export default function QuizBuilder() {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [questions, setQuestions] = useState<any[]>([
     { texte: '', options: [{ texte: '', estCorrecte: true }, { texte: '', estCorrecte: false }] }
   ]);
+
+  const handleGenerateAI = async () => {
+    setIsGenerating(true);
+    try {
+      const res = await fetch(`http://localhost:5000/api/admin/modules/${moduleId}/quiz/generate?adminEmail=${session?.user?.email}`, {
+        method: 'POST',
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.questions && data.questions.length > 0) {
+          // filtrer les questions vides avant d'ajouter
+          const filteredExisting = questions.filter(q => q.texte.trim() !== '');
+          setQuestions([...filteredExisting, ...data.questions]);
+        }
+      } else {
+        alert("Erreur lors de la génération du quiz.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Erreur serveur.");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   useEffect(() => {
     fetchQuiz();
@@ -117,6 +141,34 @@ export default function QuizBuilder() {
           <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white">Quiz Builder</h1>
           <p className="text-sm font-medium text-slate-500 dark:text-gray-400">Add questions and options for this module</p>
         </div>
+      </div>
+
+      {/* AI Generation Card */}
+      <div className="bg-gradient-to-r from-violet-600 to-blue-600 rounded-2xl p-6 shadow-lg text-white mb-8 flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
+        <div className="relative z-10">
+          <h2 className="text-xl font-extrabold flex items-center gap-2 mb-2">
+            <Sparkles className="text-yellow-300" /> Génération de Quiz par IA ✨
+          </h2>
+          <p className="text-blue-100 text-sm max-w-lg">
+            Générez automatiquement des questions pertinentes basées sur le contenu de votre cours. Vous pourrez les modifier avant de les sauvegarder.
+          </p>
+        </div>
+        <button
+          onClick={handleGenerateAI}
+          disabled={isGenerating}
+          className="relative z-10 flex-shrink-0 bg-white text-violet-700 hover:bg-violet-50 font-bold px-6 py-3 rounded-xl shadow-md transition disabled:opacity-80 flex items-center gap-2"
+        >
+          {isGenerating ? (
+            <>
+              <Loader2 size={18} className="animate-spin" /> Analyse en cours...
+            </>
+          ) : (
+            <>
+              Générer avec l'IA
+            </>
+          )}
+        </button>
       </div>
 
       <div className="space-y-8">

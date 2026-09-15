@@ -1,10 +1,9 @@
-"use client";
-
+'use client';
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft, Plus, Edit2, Trash2, Video, FileText, CheckSquare, Loader2, X, Save } from 'lucide-react';
+import { ChevronLeft, Plus, Edit2, Trash2, Video, FileText, CheckSquare, Loader2, X, Save, Sparkles } from 'lucide-react';
 
 export default function CourseEditor() {
   const { data: session } = useSession();
@@ -15,6 +14,7 @@ export default function CourseEditor() {
   const [course, setCourse] = useState<any>(null);
   const [modules, setModules] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [generatingSyllabus, setGeneratingSyllabus] = useState(false);
 
   const [showModal, setShowModal] = useState(false);
   const [editingModule, setEditingModule] = useState<any>(null);
@@ -27,6 +27,7 @@ export default function CourseEditor() {
   });
   const [uploadingFile, setUploadingFile] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [generatingCopilot, setGeneratingCopilot] = useState(false);
 
   const fetchCourseAndModules = async () => {
     if (!session?.user?.email) return;
@@ -126,6 +127,47 @@ export default function CourseEditor() {
     setSaving(false);
   };
 
+  const handleGenerateSyllabus = async () => {
+    setGeneratingSyllabus(true);
+    try {
+      const res = await fetch(`http://localhost:5000/api/admin/formations/${courseId}/generate-syllabus?adminEmail=${session?.user?.email}`, {
+        method: 'POST'
+      });
+      if (res.ok) {
+        fetchCourseAndModules();
+      } else {
+        alert("Erreur lors de la génération du plan de formation.");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    setGeneratingSyllabus(false);
+  };
+
+  const handleCopilot = async () => {
+    if (!moduleForm.description.trim()) {
+      alert("Veuillez d'abord taper quelques mots-clés dans la description pour guider l'IA.");
+      return;
+    }
+    setGeneratingCopilot(true);
+    try {
+      const res = await fetch(`http://localhost:5000/api/admin/copilot?adminEmail=${session?.user?.email}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: moduleForm.description })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setModuleForm({ ...moduleForm, description: data.content });
+      } else {
+        alert("Erreur lors de la rédaction par l'IA.");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    setGeneratingCopilot(false);
+  };
+
   const handleDeleteModule = async (moduleId: string) => {
     if (!confirm('Are you sure you want to delete this module?')) return;
     try {
@@ -173,12 +215,22 @@ export default function CourseEditor() {
             <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white">{course?.titre || 'Course Editor'}</h1>
             <p className="text-slate-500 dark:text-gray-400 font-medium mt-1">Manage the modules and content for this course.</p>
           </div>
-          <button 
-            onClick={openAddModal}
-            className="bg-[#0066FF] text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-md shadow-[#0066FF]/20 hover:bg-blue-700 transition flex items-center gap-2"
-          >
-            <Plus size={18} /> Add Module
-          </button>
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={handleGenerateSyllabus}
+              disabled={generatingSyllabus}
+              className="bg-indigo-50 text-indigo-600 px-5 py-2.5 rounded-xl text-sm font-bold border border-indigo-200 hover:bg-indigo-100 transition flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              {generatingSyllabus ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
+              {generatingSyllabus ? 'Génération...' : 'Générer avec l\'IA'}
+            </button>
+            <button 
+              onClick={openAddModal}
+              className="bg-[#0066FF] text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-md shadow-[#0066FF]/20 hover:bg-blue-700 transition flex items-center justify-center gap-2"
+            >
+              <Plus size={18} /> Add Module
+            </button>
+          </div>
         </div>
       </div>
 
@@ -306,8 +358,19 @@ export default function CourseEditor() {
               )}
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-gray-200 mb-2">Module Content / Description</label>
-                <textarea required value={moduleForm.description} onChange={e => setModuleForm({...moduleForm, description: e.target.value})} className="w-full px-4 py-3 border border-slate-200 dark:border-gray-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] transition min-h-[160px] resize-y leading-relaxed" placeholder="Write the content description here..." />
+                <div className="flex justify-between items-end mb-2">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-gray-200">Module Content / Description</label>
+                  <button 
+                    type="button"
+                    onClick={handleCopilot}
+                    disabled={generatingCopilot}
+                    className="text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition disabled:opacity-50"
+                  >
+                    {generatingCopilot ? <Loader2 size={14} className="animate-spin" /> : <span>✨</span>}
+                    {generatingCopilot ? 'Rédaction...' : 'Copilote IA'}
+                  </button>
+                </div>
+                <textarea required value={moduleForm.description} onChange={e => setModuleForm({...moduleForm, description: e.target.value})} className="w-full px-4 py-3 border border-slate-200 dark:border-gray-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] transition min-h-[160px] resize-y leading-relaxed" placeholder="Tapez quelques mots clés (ex: 'les 3 types de licenciement') puis cliquez sur Copilote IA..." />
               </div>
 
               {moduleForm.typeContenu === 'QUIZ' && (

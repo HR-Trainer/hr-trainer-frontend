@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useParams, useRouter } from 'next/navigation';
@@ -21,8 +21,6 @@ export default function LecteurModule() {
   const [quizSubmitted, setQuizSubmitted] = useState(false);
   const [score, setScore] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
-
-  // Removed Agent AI State since it's now in AIChat component
 
   useEffect(() => {
     if (session?.user?.email && moduleId) {
@@ -117,7 +115,7 @@ export default function LecteurModule() {
   return (
     <div className="max-w-6xl mx-auto pb-20">
       
-      {/* Breadcrumb / Top Info */}
+      {/* breadcrumb  top info */}
       <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-200 dark:border-gray-700">
         <div className="flex items-center gap-2 text-sm">
           <Link href="/mon-espace" className="text-slate-500 dark:text-gray-400 hover:text-[#0066FF] transition font-medium">Mon espace</Link>
@@ -128,16 +126,16 @@ export default function LecteurModule() {
         </div>
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-200 dark:border-gray-700 text-sm font-bold text-slate-700 dark:text-gray-200 bg-white dark:bg-[#111827]">
           <span className="w-2 h-2 rounded-full bg-[#0066FF]"></span>
-          0 modules terminés
+          {data?.completedModulesCount || 0} modules terminés
         </div>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8">
         
-        {/* Main Content Area */}
+        {/* main content area */}
         <div className="flex-1 space-y-8">
           
-          {/* Header Card */}
+          {/* header card */}
           <div className="bg-white dark:bg-[#111827] rounded-[1.5rem] p-6 sm:p-8 border border-slate-100 dark:border-gray-800 shadow-sm">
             <div className="flex items-center gap-3 mb-4">
               <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-[#0066FF] text-xs font-bold tracking-wider">
@@ -152,7 +150,7 @@ export default function LecteurModule() {
             <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white">{data?.module?.titre}</h1>
           </div>
 
-          {/* Video Player */}
+          {/* video player */}
           {data?.module?.typeContenu !== 'LECTURE' && (
             <div className="bg-[#0f172a] rounded-3xl aspect-video relative overflow-hidden shadow-lg border border-slate-800 flex flex-col items-center justify-center text-center group cursor-pointer">
               {data?.module?.typeContenu === 'VIDEO' ? (
@@ -177,7 +175,7 @@ export default function LecteurModule() {
             </div>
           )}
 
-          {/* Module Content Description */}
+          {/* module content description */}
           <div className="bg-white dark:bg-[#111827] rounded-[1.5rem] p-6 sm:p-8 border border-slate-100 dark:border-gray-800 shadow-sm">
             <h3 className="text-sm font-bold text-emerald-600 mb-4 flex items-center gap-2 uppercase tracking-widest">
               <FileText size={16} /> CONTENU DU MODULE
@@ -194,7 +192,7 @@ export default function LecteurModule() {
             )}
           </div>
 
-          {/* Quiz Section */}
+          {/* quiz section */}
           {data?.module?.quiz && (
             <div className="bg-white dark:bg-[#111827] rounded-[1.5rem] p-6 sm:p-8 border border-slate-100 dark:border-gray-800 shadow-sm" id="quiz">
               <div className="flex items-center gap-3 mb-6">
@@ -310,7 +308,7 @@ export default function LecteurModule() {
             </div>
           )}
 
-          {/* Validation Box / Complete Button */}
+          {/* validation box complete button */}
           {isTermine ? (
             <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-center gap-3 text-emerald-700 text-sm font-bold">
               <Check size={18} /> Module validé ! Passez au suivant ou posez une question à votre coach IA.
@@ -329,7 +327,7 @@ export default function LecteurModule() {
 
 
 
-          {/* Navigation Bottom */}
+          {/* navigation bottom */}
           <div className="flex items-center justify-between pt-6 border-t border-slate-100 dark:border-gray-800">
             {prevModule ? (
               <Link href={`/formations/${formationId}/modules/${prevModule.id}`} className="flex items-center gap-2 px-6 py-3 border border-slate-200 dark:border-gray-700 text-sm font-bold text-slate-500 dark:text-gray-400 rounded-xl hover:bg-slate-50 dark:bg-[#1f2937] transition">
@@ -356,32 +354,32 @@ export default function LecteurModule() {
             )}
           </div>
 
-          {/* AI Chat Mobile */}
+          {/* AI chat mobile */}
           <div className="lg:hidden mt-8">
             <AIChat moduleId={moduleId} sessionEmail={session?.user?.email} />
           </div>
         </div>
 
-        {/* Sidebar */}
+        {/* sidebar */}
         <div className="lg:w-80 space-y-6">
           
-          {/* AI Chat Widget */}
+          {/* AI chat widget */}
           <div className="hidden lg:block">
             <AIChat moduleId={moduleId} sessionEmail={session?.user?.email} />
           </div>
 
-          {/* Programme de la formation */}
+          {/* programme de la formation */}
           <div className="bg-white dark:bg-[#111827] rounded-[1.5rem] border border-slate-100 dark:border-gray-800 shadow-sm overflow-hidden flex flex-col max-h-[600px]">
             <div className="p-6 border-b border-slate-100 dark:border-gray-800">
               <h3 className="font-bold text-slate-900 dark:text-white text-sm">Programme de la formation</h3>
-              <p className="text-xs text-slate-400 mt-1">0 / {moduleList.length} modules</p>
+              <p className="text-xs text-slate-400 mt-1">{data?.completedModulesCount || 0} / {moduleList.length} modules</p>
             </div>
             
             <div className="overflow-y-auto custom-scrollbar flex-1 p-2">
               {moduleList.map((mod: any, index: number) => {
                 const isActive = mod.id === moduleId;
                 
-                // Determine icons based on typeContenu
+                // determine icons based on typeContenu
                 let TypeIcon = Video;
                 let typeLabel = "Vidéo";
                 let typeColor = "text-[#0066FF]";

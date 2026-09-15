@@ -44,7 +44,7 @@ export default function Header() {
           {/* Center Links */}
           <div className="hidden md:flex items-center gap-8 text-[14px] font-bold text-slate-500 dark:text-slate-400">
             <Link href="/formations" className="hover:text-slate-900 dark:hover:text-white transition">{t('courses')}</Link>
-            <Link href="/entreprises" className="hover:text-slate-900 dark:hover:text-white transition">{t('companies')}</Link>
+            <Link href="/pricing" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition">Tarifs (Pro)</Link>
             <Link href="/a-propos" className="hover:text-slate-900 dark:hover:text-white transition">{t('about')}</Link>
             <Link href="/contact" className="hover:text-slate-900 dark:hover:text-white transition">{t('contact')}</Link>
           </div>

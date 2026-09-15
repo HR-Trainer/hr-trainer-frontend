@@ -28,10 +28,7 @@ export default function ModuleList({ modules, formationId }: { modules: any[], f
           }
         });
         
-      // Fetch specific course progress if enrolled
-      fetch(`http://localhost:5000/api/admin/users?adminEmail=${session.user.email}`) // This is admin only...
-        // Actually, we don't have a dedicated public endpoint for "my progress in course X" except the dashboard which we can use, but let's just make it simple:
-        // Let's fetch all my progressions from the dashboard or a dedicated route.
+        // TODO: Implémenter un fetch de progression par cours si nécessaire.
     }
   }, [session, formationId]);
 

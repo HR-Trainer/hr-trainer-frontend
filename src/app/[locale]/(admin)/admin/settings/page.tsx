@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import { useState, useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import { User, Lock, Camera, ShieldAlert, Users, BookOpen, Star } from 'lucide-react';
@@ -60,7 +60,7 @@ export default function AdminSettings() {
       if (res.ok) {
         setSaveStatus('success');
         await update({ name: nom, photo });
-        // Dispatch event for Navbar update
+        // dispatch event for Navbar update
         localStorage.setItem(`user_profile_${session?.user?.email}`, JSON.stringify({ nom, photo: photo || null }));
         window.dispatchEvent(new Event('profile_updated'));
         setTimeout(() => setSaveStatus('idle'), 3000);
@@ -86,21 +86,20 @@ export default function AdminSettings() {
   return (
     <div className="max-w-4xl space-y-6 pb-12">
 
-      {/* Card 1: Header Profile */}
+      {/* header profile */}
       <div className="bg-white dark:bg-[#111827] rounded-[1.5rem] shadow-sm border border-slate-100 dark:border-gray-800 overflow-hidden">
-        {/* Blue Top Section */}
         <div className="h-32 bg-gradient-to-r from-[#0066FF] to-[#00bfff] relative">
           <button className="absolute top-4 right-4 flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#111827]/20 hover:bg-white dark:bg-[#111827]/30 backdrop-blur-md rounded-xl text-xs font-bold text-white transition border border-white/20">
             <Camera size={14} /> Edit Banner
           </button>
         </div>
         
-        {/* Profile Details (Overlapping) */}
+        {/* drofile details  */}
         <div className="px-8 pb-8 relative">
           <div className="flex justify-between items-start">
             <div className="relative -mt-12 flex items-end">
               <div 
-                className="w-24 h-24 bg-[#4A72FF] text-white rounded-2xl flex items-center justify-center text-3xl font-bold border-4 border-white shadow-sm overflow-hidden relative cursor-pointer group"
+                className="w-24 h-24 bg-[#4A72FF] text-white rounded-2xl flex items-center justify-center text-3xl font-bold shadow-sm overflow-hidden relative cursor-pointer group"
                 onClick={() => fileInputRef.current?.click()}
               >
                 {photo ? (
@@ -109,12 +108,11 @@ export default function AdminSettings() {
                   <span className="group-hover:opacity-20 transition">{getInitials(session?.user?.name || '')}</span>
                 )}
                 
-                {/* Camera Overlay Icon on Hover */}
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-black/30">
                   <Camera size={24} className="text-white" />
                 </div>
 
-                <div className="absolute -bottom-1 -right-1 bg-emerald-500 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center translate-x-1/4 translate-y-1/4 z-10">
+                <div className="absolute -bottom-1 -right-1 bg-emerald-500 w-6 h-6 rounded-full flex items-center justify-center translate-x-1/4 translate-y-1/4 z-10 shadow-sm">
                   <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M5 13l4 4L19 7" /></svg>
                 </div>
               </div>
