@@ -249,8 +249,8 @@ export default function CourseEditor() {
         ) : (
           <div className="divide-y divide-slate-100">
             {modules.map((mod, index) => (
-              <div key={mod.id} className="p-6 flex items-start gap-4 hover:bg-slate-50 dark:bg-[#1f2937] transition group">
-                <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center font-black text-slate-400 border border-slate-200 dark:border-gray-700">
+              <div key={mod.id} className="p-6 flex items-start gap-4 hover:bg-slate-50 dark:bg-transparent dark:hover:bg-[#1f2937] transition group">
+                <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-black text-slate-400 border border-slate-200 dark:border-gray-700">
                   {index + 1}
                 </div>
                 <div className="flex-1">

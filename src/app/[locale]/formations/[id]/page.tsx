@@ -5,6 +5,9 @@ import Footer from '@/components/Footer';
 import EnrollButton from './EnrollButton';
 import ModuleList from './ModuleList';
 import RatingSection from './RatingSection';
+import InviteEmployeesButton from './InviteEmployeesButton';
+
+import PaymentSuccessPopup from './PaymentSuccessPopup';
 
 async function getFormation(id: string) {
   try {
@@ -25,8 +28,17 @@ const translateLevel = (level: string) => {
   }
 };
 
-export default async function FormationDetail({ params }: { params: Promise<{ id: string }> }) {
+export default async function FormationDetail({ 
+  params, 
+  searchParams 
+}: { 
+  params: Promise<{ id: string }>,
+  searchParams?: Promise<{ session_id?: string }>
+}) {
   const resolvedParams = await params;
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const sessionId = resolvedSearchParams.session_id;
+  
   const formation = await getFormation(resolvedParams.id);
 
   if (!formation) {
@@ -48,6 +60,7 @@ export default async function FormationDetail({ params }: { params: Promise<{ id
   return (
     <div className="min-h-screen bg-white font-sans flex flex-col">
       <Header />
+      {sessionId && <PaymentSuccessPopup sessionId={sessionId} />}
       
       {/* Background Hero Layer */}
       <div className="bg-[#6B4BFF] text-white">
@@ -87,43 +100,6 @@ export default async function FormationDetail({ params }: { params: Promise<{ id
               </div>
             </div>
 
-            {/* Right Hero Card */}
-            <div className="lg:col-span-4 hidden lg:block relative">
-              <div className="absolute top-4 w-full bg-white rounded-3xl shadow-xl overflow-hidden text-slate-900 border border-slate-100 flex flex-col">
-                <div 
-                  className={`h-32 ${formation.imageUrl ? 'bg-cover bg-center' : 'bg-slate-100'} flex items-center justify-center relative`}
-                  style={formation.imageUrl ? { backgroundImage: `url(${formation.imageUrl})` } : {}}
-                >
-                  {formation.imageUrl && <div className="absolute inset-0 bg-black/20"></div>}
-                  {/* Video Placeholder */}
-                  <div className="relative z-10 w-14 h-14 bg-white/90 rounded-full flex items-center justify-center shadow-lg cursor-pointer hover:scale-105 transition">
-                    <PlayCircle size={28} className="text-[#0066FF] ml-1" />
-                  </div>
-                </div>
-                <div className="p-6">
-                  <div className="flex justify-between items-end mb-4">
-                    <h2 className="text-[28px] font-extrabold">{isFree ? 'Free' : 'Paid'}</h2>
-                    <span className="text-[13px] font-bold text-slate-400">Full access</span>
-                  </div>
-                  <EnrollButton isFree={isFree} />
-                  
-                  <div className="mt-5 space-y-2.5">
-                    <div className="flex gap-3 items-center text-[13px] font-bold text-slate-500">
-                      <Check size={16} className="text-[#0066FF]" /> Lifetime access
-                    </div>
-                    <div className="flex gap-3 items-center text-[13px] font-bold text-slate-500">
-                      <Check size={16} className="text-[#0066FF]" /> AI Coach included
-                    </div>
-                    <div className="flex gap-3 items-center text-[13px] font-bold text-slate-500">
-                      <Check size={16} className="text-[#0066FF]" /> Recognized certificate
-                    </div>
-                    <div className="flex gap-3 items-center text-[13px] font-bold text-slate-500">
-                      <Check size={16} className="text-[#0066FF]" /> English & French subtitles
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -216,6 +192,7 @@ export default async function FormationDetail({ params }: { params: Promise<{ id
                 </div>
                 
                 <EnrollButton isFree={isFree} formationId={formation.id} prix={formation.prix} />
+                <InviteEmployeesButton formationId={formation.id} />
 
                 <div className="mt-5 space-y-3">
                   <div className="flex gap-3 items-center text-[13px] font-bold text-slate-500">

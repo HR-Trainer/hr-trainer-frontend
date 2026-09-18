@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { MessageSquare, ChevronDown, ChevronUp, Loader2, Play, AlertTriangle, BrainCircuit, Send, Mic } from 'lucide-react';
-import ReactMarkdown from 'react-markdown'; 
 
 // markdown-lite renderer implementation
 const renderMarkdownLite = (text: string) => {
@@ -10,14 +9,17 @@ const renderMarkdownLite = (text: string) => {
   let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
   // italic
   formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
-  //  block
-  formatted = formatted.replace(/(.*?)(?=\n|$)/g, '<div class="bg-amber-50 text-amber-800 p-2 rounded border border-amber-200 text-xs my-1 font-medium flex gap-2"><span class="text-amber-500">⚠️</span><span>$1</span></div>');
+  // blockquotes
+  formatted = formatted.replace(/^> (.*)$/gm, '<div class="bg-slate-50 text-slate-800 p-3 rounded-r-lg border-l-4 border-[#0066FF] text-sm my-2 italic">$1</div>');
   // lists
-  formatted = formatted.replace(/^- (.*)$/gm, '<li class="ml-4 list-disc">$1</li>');
+  formatted = formatted.replace(/^- (.*)$/gm, '<li class="ml-4 list-disc mb-1">$1</li>');
+  // headers
+  formatted = formatted.replace(/^### (.*)$/gm, '<h3 class="font-bold mt-3 mb-1 text-base text-slate-800 dark:text-white">$1</h3>');
+  formatted = formatted.replace(/^## (.*)$/gm, '<h2 class="font-extrabold mt-4 mb-2 text-lg text-slate-900 dark:text-white">$1</h2>');
   // breaklines
   formatted = formatted.replace(/\n/g, '<br/>');
   
-  return <div dangerouslySetInnerHTML={{ __html: formatted }} />;
+  return <div dangerouslySetInnerHTML={{ __html: formatted }} className="text-sm leading-relaxed" />;
 };
 
 interface AIChatProps {

@@ -3,8 +3,7 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { PlayCircle, FileText, CheckCircle2, MessageSquare, ChevronLeft, ChevronRight, Loader2, Play, Check, CheckSquare, Video } from 'lucide-react';
-import AIChat from './AIChat';
+import { PlayCircle, FileText, Download, CheckCircle2, MessageSquare, ChevronLeft, ChevronRight, Loader2, Play, Check, CheckSquare, Video } from 'lucide-react';
 
 export default function LecteurModule() {
   const { data: session } = useSession();
@@ -166,12 +165,17 @@ export default function LecteurModule() {
                   </div>
                 )
               ) : (
-                <div className="absolute inset-0 bg-white dark:bg-[#111827] flex flex-col items-center justify-center text-slate-400 border border-slate-200 dark:border-gray-700 rounded-3xl">
-                  <FileText size={64} className="mb-4 text-slate-300" />
-                  <p>Ouvrir le document</p>
-                  <a href={data?.module?.contenuUrl || '#'} target="_blank" className="mt-4 px-6 py-2 bg-[#0066FF] text-white font-bold rounded-xl text-sm">Télécharger / Voir</a>
-                </div>
-              )}
+                  <>
+                    {data?.module?.contenuUrl ? (
+                      <iframe src={data?.module?.contenuUrl} className="w-full h-full border-0 absolute inset-0 z-10 bg-white dark:bg-slate-900 rounded-3xl" title="Document viewer" />
+                    ) : (
+                      <div className="absolute inset-0 bg-white dark:bg-[#111827] flex flex-col items-center justify-center text-slate-400 border border-slate-200 dark:border-gray-700 rounded-3xl">
+                        <FileText size={64} className="mb-4 text-slate-300 dark:text-slate-600" />
+                        <p>Aucun document disponible</p>
+                      </div>
+                    )}
+                  </>
+                )}
             </div>
           )}
 
@@ -354,19 +358,13 @@ export default function LecteurModule() {
             )}
           </div>
 
-          {/* AI chat mobile */}
-          <div className="lg:hidden mt-8">
-            <AIChat moduleId={moduleId} sessionEmail={session?.user?.email} />
-          </div>
+          {/* AI chat mobile supprimé car on utilise la bulle globale */}
         </div>
 
         {/* sidebar */}
         <div className="lg:w-80 space-y-6">
           
-          {/* AI chat widget */}
-          <div className="hidden lg:block">
-            <AIChat moduleId={moduleId} sessionEmail={session?.user?.email} />
-          </div>
+          {/* AI chat widget supprimé car bulle globale */}
 
           {/* programme de la formation */}
           <div className="bg-white dark:bg-[#111827] rounded-[1.5rem] border border-slate-100 dark:border-gray-800 shadow-sm overflow-hidden flex flex-col max-h-[600px]">

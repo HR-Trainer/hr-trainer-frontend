@@ -21,6 +21,8 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { Providers } from "@/components/Providers";
 
+import GlobalAIChatBubble from '@/components/GlobalAIChatBubble';
+
 export default async function RootLayout({
   children,
   params,
@@ -39,7 +41,10 @@ export default async function RootLayout({
     >
       <body suppressHydrationWarning className="min-h-full flex flex-col">
         <NextIntlClientProvider messages={messages}>
-          <Providers>{children}</Providers>
+          <Providers>
+            {children}
+            <GlobalAIChatBubble />
+          </Providers>
         </NextIntlClientProvider>
       </body>
     </html>

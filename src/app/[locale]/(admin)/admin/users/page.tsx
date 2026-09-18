@@ -1,11 +1,13 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { Loader2, UserX, UserCheck, Shield, Mail, Phone, Building, Trash2, X, AlertTriangle, TrendingUp } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, UserX, UserCheck, Shield, Mail, Phone, Building, Trash2, X, AlertTriangle, TrendingUp } from 'lucide-react';
 
 export default function AdminUsers() {
   const { data: session } = useSession();
   const [users, setUsers] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
   const [loading, setLoading] = useState(true);
 
   // modals state
@@ -129,7 +131,14 @@ export default function AdminUsers() {
     return <div className="h-64 flex items-center justify-center"><Loader2 className="animate-spin text-[#0066FF]" size={32} /></div>;
   }
 
-  return (
+  
+  
+  const totalPages = Math.ceil(users.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentUsers = users.slice(indexOfFirstItem, indexOfLastItem);
+
+return (
     <div className="space-y-6 max-w-6xl relative">
       <div className="flex justify-between items-center">
         <div>
@@ -151,7 +160,7 @@ export default function AdminUsers() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {users.map(user => (
+              {currentUsers.map(user => (
                 <tr key={user.id} className="hover:bg-slate-50 dark:hover:bg-slate-800 transition">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
@@ -223,7 +232,22 @@ export default function AdminUsers() {
                 </tr>
               )}
             </tbody>
+          
           </table>
+          <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 dark:border-gray-800 bg-slate-50 dark:bg-slate-900/50">
+            <div className="text-sm text-slate-500 dark:text-gray-400">
+              Affichage de {users.length > 0 ? indexOfFirstItem + 1 : 0} à {Math.min(indexOfLastItem, users.length)} sur {users.length} éléments
+            </div>
+            <div className="flex gap-2">
+              <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="p-2 rounded-lg border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-gray-300 disabled:opacity-50 hover:bg-white dark:hover:bg-slate-800 transition">
+                <ChevronLeft size={18} />
+              </button>
+              <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages || totalPages === 0} className="p-2 rounded-lg border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-gray-300 disabled:opacity-50 hover:bg-white dark:hover:bg-slate-800 transition">
+                <ChevronRight size={18} />
+              </button>
+            </div>
+          </div>
+
         </div>
       </div>
 

@@ -99,7 +99,6 @@ export default function EleveLayout({ children }: { children: React.ReactNode })
     { href: '/mon-espace', label: t('navDashboard', { fallback: 'Dashboard' }), icon: LayoutDashboard },
     { href: '/mes-formations', label: t('navCourses', { fallback: 'My Courses' }), icon: BookOpen, badge: stats.formations },
     { href: '/profil', label: t('navProfile', { fallback: 'My Profile' }), icon: User },
-    { href: '/securite', label: t('navSecurity', { fallback: 'Security' }), icon: Shield },
     { href: '/notifications', label: t('navNotifications', { fallback: 'Notifications' }), icon: Bell, badge: stats.notifications },
   ];
 
@@ -113,7 +112,6 @@ export default function EleveLayout({ children }: { children: React.ReactNode })
     if (pathname === '/mon-espace') return t('navDashboard', { fallback: 'Dashboard' });
     if (pathname === '/mes-formations') return t('navCourses', { fallback: 'My Courses' });
     if (pathname === '/profil') return t('navProfile', { fallback: 'My Profile' });
-    if (pathname === '/securite') return t('navSecurity', { fallback: 'Security' });
     if (pathname === '/notifications') return t('navNotifications', { fallback: 'Notifications' });
     if (pathname === '/attestations') return t('navCertificates', { fallback: 'Certificates' });
     if (pathname?.includes('/modules/')) return t('navCurrentModule', { fallback: 'Current Module' });
@@ -178,7 +176,7 @@ export default function EleveLayout({ children }: { children: React.ReactNode })
                 {navLinksEspace.map(link => {
                   const isActive = pathname === link.href || (link.href !== '/mon-espace' && pathname?.startsWith(link.href));
                   return (
-                    <Link key={link.href} href={link.href} className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-bold transition ${isActive ? 'bg-[#0066FF] text-white shadow-md shadow-[#0066FF]/20' : 'text-slate-500 dark:text-gray-400 hover:bg-slate-50 dark:bg-[#1f2937] hover:text-slate-900 dark:text-white'}`}>
+                    <Link key={link.href} href={link.href} className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-bold transition ${isActive ? 'bg-[#0066FF] text-white shadow-md shadow-[#0066FF]/20' : 'text-slate-500 dark:text-gray-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'}`}>
                       <div className="flex items-center gap-3">
                         <link.icon size={18} className={isActive ? 'text-white' : 'text-slate-400'} />
                         {link.label}
@@ -199,7 +197,7 @@ export default function EleveLayout({ children }: { children: React.ReactNode })
               <h4 className="px-3 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">NAVIGATION</h4>
               <nav className="space-y-1">
                 {navLinksGlobal.map(link => (
-                  <Link key={link.href} href={link.href} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-500 dark:text-gray-400 hover:bg-slate-50 dark:bg-[#1f2937] hover:text-slate-900 dark:text-white transition">
+                  <Link key={link.href} href={link.href} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-500 dark:text-gray-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition">
                     <link.icon size={18} className="text-slate-400" />
                     {link.label}
                   </Link>
@@ -209,7 +207,7 @@ export default function EleveLayout({ children }: { children: React.ReactNode })
           </div>
           
           <div className="p-3 border-t border-slate-100 dark:border-gray-800">
-            <button onClick={() => signOut({ callbackUrl: '/' })} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-500 dark:text-gray-400 hover:bg-red-50 hover:text-red-600 transition">
+            <button onClick={() => signOut({ callbackUrl: '/' })} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-500 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400 transition">
               <LogOut size={18} /> Sign Out
             </button>
           </div>
@@ -249,7 +247,7 @@ export default function EleveLayout({ children }: { children: React.ReactNode })
             <div className="relative">
               <button 
                 onClick={() => setShowNotifs(!showNotifs)}
-                className="relative p-2 text-slate-400 hover:text-slate-600 dark:text-gray-300 hover:bg-slate-50 dark:bg-[#1f2937] rounded-full transition"
+                className="relative p-2 text-slate-400 hover:text-slate-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-full transition"
               >
                 <Bell size={20} />
                 {notifications.filter(n => !n.lu).length > 0 && (
@@ -269,14 +267,14 @@ export default function EleveLayout({ children }: { children: React.ReactNode })
                       <div className="p-8 text-center text-slate-400 text-sm">No notifications yet.</div>
                     ) : (
                       notifications.slice(0,5).map(notif => (
-                        <div key={notif.id} className={`p-4 border-b border-slate-50 hover:bg-slate-50 dark:bg-[#1f2937] transition cursor-pointer ${!notif.lu ? 'bg-blue-50/50' : ''}`}>
+                        <div key={notif.id} className={`p-4 border-b border-slate-50 hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer ${!notif.lu ? 'bg-blue-50/50' : ''}`}>
                           <h4 className={`text-sm ${!notif.lu ? 'font-bold text-slate-900 dark:text-white' : 'font-medium text-slate-700 dark:text-gray-200'}`}>{notif.titre}</h4>
                           <p className="text-xs text-slate-500 dark:text-gray-400 mt-1 line-clamp-2">{notif.message}</p>
                         </div>
                       ))
                     )}
                   </div>
-                  <Link href="/notifications" onClick={() => setShowNotifs(false)} className="block p-3 text-center text-sm font-bold text-[#0066FF] hover:bg-blue-50 transition">
+                  <Link href="/notifications" onClick={() => setShowNotifs(false)} className="block p-3 text-center text-sm font-bold text-[#0066FF] hover:bg-blue-50 dark:hover:bg-blue-900/30 transition">
                     View all notifications
                   </Link>
                 </div>

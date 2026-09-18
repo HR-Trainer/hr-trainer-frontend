@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
-import { User, Lock, Camera, ShieldAlert, Users, BookOpen, Star } from 'lucide-react';
+import { User, Lock, Camera, ShieldAlert, Users, BookOpen, Star, Eye, EyeOff, CheckCircle2, XCircle } from 'lucide-react';
 
 export default function AdminSettings() {
   const { data: session, status, update } = useSession();
@@ -10,6 +10,8 @@ export default function AdminSettings() {
   const [stats, setStats] = useState({ totalUsers: 0, activeUsers: 0, totalFormations: 0 });
   const [saveStatus, setSaveStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showPass, setShowPass] = useState({ current: false, new: false, confirm: false });
+  const [modalInfo, setModalInfo] = useState<{show: boolean, type: 'success'|'error', title: string, message: string}>({show: false, type: 'success', title: '', message: ''});
 
   useEffect(() => {
     if (session?.user) {
@@ -219,6 +221,106 @@ export default function AdminSettings() {
         </form>
       </div>
 
-    </div>
+      {/* Card 2.5: Sécurité / Mot de passe */}
+      <div className="bg-white dark:bg-[#111827] rounded-[1.5rem] shadow-sm border border-slate-100 dark:border-gray-800 p-8 mt-6">
+        <div className="flex items-center gap-4 mb-8">
+          <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center">
+            <Lock size={20} />
+          </div>
+          <div>
+            <h3 className="font-bold text-slate-900 dark:text-white text-lg">Update Password</h3>
+            <p className="text-xs text-slate-400 font-medium">Keep your account secure</p>
+          </div>
+        </div>
+
+        <form onSubmit={async (e) => {
+          e.preventDefault();
+          const target = e.target as typeof e.target & {
+            currentPass: { value: string };
+            newPass: { value: string };
+            confirmPass: { value: string };
+          };
+          if (target.newPass.value !== target.confirmPass.value) {
+            setModalInfo({show: true, type: 'error', title: 'Erreur', message: 'Passwords do not match'});
+            return;
+          }
+          try {
+            const res = await fetch('http://localhost:5000/api/auth/reset-password-first-login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                email: session?.user?.email, 
+                currentPassword: target.currentPass.value, 
+                newPassword: target.newPass.value 
+              })
+            });
+            if (res.ok) {
+              setModalInfo({show: true, type: 'success', title: 'Succès', message: 'Password updated successfully'});
+              target.currentPass.value = '';
+              target.newPass.value = '';
+              target.confirmPass.value = '';
+            } else {
+              const data = await res.json();
+              setModalInfo({show: true, type: 'error', title: 'Erreur', message: data.error || 'Failed to update password'});
+            }
+          } catch(e) {
+            setModalInfo({show: true, type: 'error', title: 'Erreur Serveur', message: 'Server error'});
+          }
+        }} className="space-y-6">
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-[13px] font-bold text-slate-800 dark:text-gray-100 mb-2">Current Password</label>
+              <div className="relative">
+                <input required name="currentPass" type={showPass.current ? 'text' : 'password'} placeholder="••••••••" className="w-full px-4 py-3 bg-white dark:bg-[#111827] border border-slate-200 dark:border-gray-700 rounded-xl text-[14px] text-slate-900 dark:text-white focus:border-[#0066FF] outline-none pr-10" />
+                <button type="button" onClick={() => setShowPass({...showPass, current: !showPass.current})} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-gray-300">
+                  {showPass.current ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+            <div>
+              <label className="block text-[13px] font-bold text-slate-800 dark:text-gray-100 mb-2">New Password</label>
+              <div className="relative">
+                <input required name="newPass" type={showPass.new ? 'text' : 'password'} placeholder="••••••••" className="w-full px-4 py-3 bg-white dark:bg-[#111827] border border-slate-200 dark:border-gray-700 rounded-xl text-[14px] text-slate-900 dark:text-white focus:border-[#0066FF] outline-none pr-10" />
+                <button type="button" onClick={() => setShowPass({...showPass, new: !showPass.new})} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-gray-300">
+                  {showPass.new ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+            <div>
+              <label className="block text-[13px] font-bold text-slate-800 dark:text-gray-100 mb-2">Confirm New Password</label>
+              <div className="relative">
+                <input required name="confirmPass" type={showPass.confirm ? 'text' : 'password'} placeholder="••••••••" className="w-full px-4 py-3 bg-white dark:bg-[#111827] border border-slate-200 dark:border-gray-700 rounded-xl text-[14px] text-slate-900 dark:text-white focus:border-[#0066FF] outline-none pr-10" />
+                <button type="button" onClick={() => setShowPass({...showPass, confirm: !showPass.confirm})} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-gray-300">
+                  {showPass.confirm ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+          </div>
+          <button type="submit" className="bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 dark:text-slate-900 text-white px-6 py-3 rounded-xl font-bold text-sm transition shadow-md">
+            Update Password
+          </button>
+        </form>
+      </div>
+
+    
+      {/* Password Update Modal */}
+      {modalInfo.show && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+          <div className="bg-white dark:bg-[#111827] rounded-3xl shadow-2xl max-w-sm w-full p-8 border border-slate-100 dark:border-gray-800 transform transition-all text-center">
+            <div className={`w-16 h-16 rounded-full ${modalInfo.type === 'success' ? 'bg-emerald-100 text-emerald-500' : 'bg-red-100 text-red-500'} flex items-center justify-center mx-auto mb-6 shadow-sm`}>
+              {modalInfo.type === 'success' ? <CheckCircle2 size={32} /> : <XCircle size={32} />}
+            </div>
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{modalInfo.title}</h3>
+            <p className="text-slate-500 dark:text-gray-400 text-[15px] mb-8">{modalInfo.message}</p>
+            <button 
+              onClick={() => setModalInfo({...modalInfo, show: false})}
+              className="w-full py-3.5 bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 rounded-xl font-bold transition shadow-md"
+            >
+              Fermer
+            </button>
+          </div>
+        </div>
+      )}
+</div>
   );
 }

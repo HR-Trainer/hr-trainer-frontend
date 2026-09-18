@@ -32,7 +32,11 @@ export default function Connexion() {
       setErrorMsg(t('errorMsg'));
     } else {
       const currentSession = await getSession();
-      if ((currentSession?.user as any)?.role === 'ADMIN') {
+      
+      if ((currentSession?.user as any)?.forcePasswordReset) {
+        // Rediriger vers la page de changement de mot de passe obligatoire
+        router.push('/forcer-changement-mdp');
+      } else if ((currentSession?.user as any)?.role === 'ADMIN') {
         router.push('/admin/dashboard');
       } else {
         router.push('/mon-espace');

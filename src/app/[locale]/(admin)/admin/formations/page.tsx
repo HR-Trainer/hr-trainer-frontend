@@ -1,12 +1,14 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { Loader2, Plus, Edit, Trash2, Eye, EyeOff, AlertTriangle, X, Settings } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, Plus, Edit, Trash2, Eye, EyeOff, AlertTriangle, X, Settings } from 'lucide-react';
 import Link from 'next/link';
 
 export default function AdminFormations() {
   const { data: session } = useSession();
   const [formations, setFormations] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
   const [loading, setLoading] = useState(true);
 
   // modals state
@@ -24,7 +26,8 @@ export default function AdminFormations() {
     duree: 4, 
     gratuit: true, 
     publie: false,
-    imageUrl: ''
+    imageUrl: '',
+    prix: 0
   });
   const [uploadingImage, setUploadingImage] = useState(false);
   const [addStatus, setAddStatus] = useState<'idle' | 'loading' | 'error'>('idle');
@@ -79,7 +82,7 @@ export default function AdminFormations() {
       if (res.ok) {
         setShowAddModal(false);
         setEditingCourseId(null);
-        setNewCourse({ titre: '', description: '', niveau: 'DEBUTANT', duree: 4, gratuit: true, publie: false, imageUrl: '' });
+        setNewCourse({ titre: '', description: '', niveau: 'DEBUTANT', duree: 4, gratuit: true, publie: false, imageUrl: '', prix: 0 });
         fetchFormations();
       } else {
         setAddStatus('error');
@@ -139,7 +142,14 @@ export default function AdminFormations() {
     return <div className="h-64 flex items-center justify-center"><Loader2 className="animate-spin text-[#0066FF]" size={32} /></div>;
   }
 
-  return (
+  
+  
+  const totalPages = Math.ceil(formations.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentFormations = formations.slice(indexOfFirstItem, indexOfLastItem);
+
+return (
     <div className="space-y-6 max-w-6xl relative">
       <div className="flex justify-between items-center">
         <div>
@@ -149,7 +159,7 @@ export default function AdminFormations() {
         <button 
           onClick={() => {
             setEditingCourseId(null);
-            setNewCourse({ titre: '', description: '', niveau: 'DEBUTANT', duree: 4, gratuit: true, publie: false, imageUrl: '' });
+            setNewCourse({ titre: '', description: '', niveau: 'DEBUTANT', duree: 4, gratuit: true, publie: false, imageUrl: '', prix: 0 });
             setShowAddModal(true);
           }}
           className="flex items-center gap-2 bg-[#0066FF] text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-md shadow-[#0066FF]/20 hover:bg-blue-700 transition"
@@ -172,7 +182,7 @@ export default function AdminFormations() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {formations.map(formation => (
+              {currentFormations.map(formation => (
                 <tr key={formation.id} className="hover:bg-slate-50 dark:hover:bg-slate-800 transition">
                   <td className="px-6 py-4">
                     <div className="font-bold text-slate-900 dark:text-white">{formation.titre}</div>
@@ -223,7 +233,8 @@ export default function AdminFormations() {
                             duree: formation.duree ? parseInt(formation.duree) : 4,
                             gratuit: formation.gratuit,
                             publie: formation.publie,
-                            imageUrl: formation.imageUrl || ''
+                            imageUrl: formation.imageUrl || '',
+                            prix: formation.prix || 0
                           });
                           setShowAddModal(true);
                         }}
@@ -249,7 +260,22 @@ export default function AdminFormations() {
                 </tr>
               )}
             </tbody>
+          
           </table>
+          <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 dark:border-gray-800 bg-slate-50 dark:bg-slate-900/50">
+            <div className="text-sm text-slate-500 dark:text-gray-400">
+              Affichage de {formations.length > 0 ? indexOfFirstItem + 1 : 0} à {Math.min(indexOfLastItem, formations.length)} sur {formations.length} éléments
+            </div>
+            <div className="flex gap-2">
+              <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="p-2 rounded-lg border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-gray-300 disabled:opacity-50 hover:bg-white dark:hover:bg-slate-800 transition">
+                <ChevronLeft size={18} />
+              </button>
+              <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages || totalPages === 0} className="p-2 rounded-lg border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-gray-300 disabled:opacity-50 hover:bg-white dark:hover:bg-slate-800 transition">
+                <ChevronRight size={18} />
+              </button>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -310,15 +336,20 @@ export default function AdminFormations() {
                   <label className="block text-xs font-bold text-slate-700 dark:text-gray-200 mb-1.5">Tarification</label>
                   <select 
                     value={newCourse.gratuit ? "true" : "false"} 
-                    onChange={e => setNewCourse({...newCourse, gratuit: e.target.value === "true"})} 
-                    className="w-full px-4 py-3 bg-slate-50 dark:bg-[#1f2937] border border-slate-200 dark:border-gray-700 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] transition mb-4"
+                    onChange={e => {
+                      const isFree = e.target.value === "true";
+                      setNewCourse({...newCourse, gratuit: isFree, prix: isFree ? 0 : newCourse.prix});
+                    }} 
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-[#1f2937] border border-slate-200 dark:border-gray-700 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] transition"
                   >
                     <option value="true">Gratuit (Libre d'accès)</option>
                     <option value="false">Payant (Premium)</option>
                   </select>
-                  
-                  {!newCourse.gratuit && (
-                    <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                </div>
+                
+                <div>
+                  {!newCourse.gratuit ? (
+                    <div className="animate-in fade-in slide-in-from-left-2 duration-300">
                       <label className="block text-xs font-bold text-slate-700 dark:text-gray-200 mb-1.5">Prix de la formation (€)</label>
                       <div className="relative">
                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">€</span>
@@ -334,14 +365,23 @@ export default function AdminFormations() {
                         />
                       </div>
                     </div>
+                  ) : (
+                    <div className="h-full flex items-end pb-3 pl-2">
+                      <span className="text-xs text-slate-400 font-medium italic">Aucun prix requis pour les formations gratuites.</span>
+                    </div>
                   )}
                 </div>
-                
-                <label className="flex items-center gap-3 cursor-pointer group">
+              </div>
+
+              <div className="pt-2">
+                <label className="flex items-center gap-3 cursor-pointer group bg-transparent p-3 rounded-xl border border-slate-200 dark:border-gray-700 transition hover:bg-slate-50 dark:hover:bg-[#1f2937]">
                   <div className={`w-5 h-5 rounded flex items-center justify-center border transition ${newCourse.publie ? 'bg-[#0066FF] border-[#0066FF]' : 'bg-white dark:bg-[#111827] border-slate-300 group-hover:border-[#0066FF]'}`}>
                     {newCourse.publie && <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
                   </div>
-                  <span className="text-sm font-bold text-slate-700 dark:text-gray-200">Publish Immediately</span>
+                  <div>
+                    <span className="block text-sm font-bold text-slate-700 dark:text-gray-200">Publish Immediately</span>
+                    <span className="block text-xs text-slate-500">The course will be visible to students right away.</span>
+                  </div>
                   <input type="checkbox" checked={newCourse.publie} onChange={e => setNewCourse({...newCourse, publie: e.target.checked})} className="hidden" />
                 </label>
               </div>
