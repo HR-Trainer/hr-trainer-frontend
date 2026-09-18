@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { MessageSquare, Mail, Building, MapPin, ChevronDown, ChevronUp, User, Send } from 'lucide-react';
+import { MessageSquare, Mail, Building, MapPin, ChevronDown, ChevronUp, User, Send, Check } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useTranslations } from 'next-intl';

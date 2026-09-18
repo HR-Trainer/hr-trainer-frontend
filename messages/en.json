@@ -183,7 +183,25 @@
     "navContact": "Contact",
     "navCertificates": "Certificates",
     "navCurrentModule": "Current Module",
-    "learnerSpace": "Learner Space"
+    "learnerSpace": "Learner Space",
+    "historyAndLearning": "HISTORY AND LEARNING",
+    "myCourses": "My Courses",
+    "myCoursesDesc": "Find all the courses you have access to right here.",
+    "inProgress": "In Progress",
+    "toStart": "To Start",
+    "completed": "Completed",
+    "noCoursesFound": "No courses found.",
+    "noCoursesFoundTitle": "No Courses",
+    "noCoursesFoundDesc": "You do not have access to any courses at the moment.",
+    "discoverCatalog": "Discover Catalog",
+    "free": "Free",
+    "premium": "Premium",
+    "review": "Review",
+    "resume": "Resume",
+    "start": "Start",
+    "buyNow": "Buy Now",
+    "loading": "Loading...",
+    "continueCourse": "Continue Course"
   },
   "Index": {
     "title": "Welcome to HR-Trainer",
@@ -238,6 +256,7 @@
     "navUsers": "Users",
     "navCourses": "Courses",
     "navSettings": "Settings",
-    "adminSpace": "Admin Space"
+    "adminSpace": "Admin Space",
+    "navPayments": "Payments & Enrollments"
   }
 }

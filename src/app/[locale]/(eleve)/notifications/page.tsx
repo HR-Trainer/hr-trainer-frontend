@@ -147,16 +147,6 @@ export default function Notifications() {
               <span className={`absolute top-1 w-4 h-4 rounded-full bg-white dark:bg-[#111827] transition-all ${prefs.email ? 'left-7' : 'left-1'}`}></span>
             </button>
           </div>
-
-          <div className="flex items-center justify-between gap-4 pt-2">
-            <div>
-              <h3 className="font-bold text-slate-900 dark:text-white text-sm">SMS Notifications</h3>
-              <p className="text-xs text-slate-500 dark:text-gray-400 mt-1 font-medium">Urgent reminders via SMS</p>
-            </div>
-            <button onClick={() => togglePref('sms')} className={`w-12 h-6 rounded-full transition-colors relative flex-shrink-0 ${prefs.sms ? 'bg-[#0066FF]' : 'bg-slate-200'}`}>
-              <span className={`absolute top-1 w-4 h-4 rounded-full bg-white dark:bg-[#111827] transition-all ${prefs.sms ? 'left-7' : 'left-1'}`}></span>
-            </button>
-          </div>
         </div>
       </div>
 

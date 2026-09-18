@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
-import { User, Lock, Camera, ShieldAlert, Clock } from 'lucide-react';
+import { User, Lock, Camera, ShieldAlert, Clock, Eye, EyeOff, CheckCircle2, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import { signOut } from 'next-auth/react';
 
@@ -13,6 +13,8 @@ export default function Profil() {
   const [memberSince, setMemberSince] = useState('Loading...');
   const [saveStatus, setSaveStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showPass, setShowPass] = useState({ current: false, new: false, confirm: false });
+  const [modalInfo, setModalInfo] = useState<{show: boolean, type: 'success'|'error', title: string, message: string}>({show: false, type: 'success', title: '', message: ''});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -280,7 +282,7 @@ export default function Profil() {
                   disabled
                   value={isEntreprise ? 'Company' : 'Individual / Career change'}
                   type="text" 
-                  className="w-full pl-10 pr-4 py-3 bg-blue-50/50 border-2 border-[#0066FF] rounded-xl text-[14px] text-[#0066FF] font-bold cursor-default" 
+                  className="w-full pl-10 pr-4 py-3 bg-transparent border-2 border-[#0066FF] rounded-xl text-[14px] text-[#0066FF] font-bold cursor-default" 
                 />
               </div>
             </div>
@@ -300,7 +302,6 @@ export default function Profil() {
               </div>
             </div>
           </div>
-
           <div className="pt-4 flex items-center">
             <button disabled={saveStatus === 'loading'} type="submit" className="bg-[#0066FF] hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold text-sm transition shadow-md disabled:opacity-70">
               {saveStatus === 'loading' ? 'Saving...' : 'Save Changes'}
@@ -317,8 +318,89 @@ export default function Profil() {
         </form>
       </div>
 
+      {/* Card 2.5: Sécurité / Mot de passe */}
+      <div className="bg-white dark:bg-[#111827] rounded-[1.5rem] shadow-sm border border-slate-100 dark:border-gray-800 p-8">
+        <div className="flex items-center gap-4 mb-8">
+          <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center">
+            <Lock size={20} />
+          </div>
+          <div>
+            <h3 className="font-bold text-slate-900 dark:text-white text-lg">Update Password</h3>
+            <p className="text-xs text-slate-400 font-medium">Keep your account secure</p>
+          </div>
+        </div>
+
+        <form onSubmit={async (e) => {
+          e.preventDefault();
+          const target = e.target as typeof e.target & {
+            currentPass: { value: string };
+            newPass: { value: string };
+            confirmPass: { value: string };
+          };
+          if (target.newPass.value !== target.confirmPass.value) {
+            setModalInfo({show: true, type: 'error', title: 'Erreur', message: 'Passwords do not match'});
+            return;
+          }
+          try {
+            const res = await fetch('http://localhost:5000/api/auth/reset-password-first-login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                email: session?.user?.email, 
+                currentPassword: target.currentPass.value, 
+                newPassword: target.newPass.value 
+              })
+            });
+            if (res.ok) {
+              setModalInfo({show: true, type: 'success', title: 'Succès', message: 'Password updated successfully'});
+              target.currentPass.value = '';
+              target.newPass.value = '';
+              target.confirmPass.value = '';
+            } else {
+              const data = await res.json();
+              setModalInfo({show: true, type: 'error', title: 'Erreur', message: data.error || 'Failed to update password'});
+            }
+          } catch(e) {
+            setModalInfo({show: true, type: 'error', title: 'Erreur Serveur', message: 'Server error'});
+          }
+        }} className="space-y-6">
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-[13px] font-bold text-slate-800 dark:text-gray-100 mb-2">Current Password</label>
+              <div className="relative">
+                <input required name="currentPass" type={showPass.current ? 'text' : 'password'} placeholder="••••••••" className="w-full px-4 py-3 bg-white dark:bg-[#111827] border border-slate-200 dark:border-gray-700 rounded-xl text-[14px] text-slate-900 dark:text-white focus:border-[#0066FF] outline-none pr-10" />
+                <button type="button" onClick={() => setShowPass({...showPass, current: !showPass.current})} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-gray-300">
+                  {showPass.current ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+            <div>
+              <label className="block text-[13px] font-bold text-slate-800 dark:text-gray-100 mb-2">New Password</label>
+              <div className="relative">
+                <input required name="newPass" type={showPass.new ? 'text' : 'password'} placeholder="••••••••" className="w-full px-4 py-3 bg-white dark:bg-[#111827] border border-slate-200 dark:border-gray-700 rounded-xl text-[14px] text-slate-900 dark:text-white focus:border-[#0066FF] outline-none pr-10" />
+                <button type="button" onClick={() => setShowPass({...showPass, new: !showPass.new})} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-gray-300">
+                  {showPass.new ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+            <div>
+              <label className="block text-[13px] font-bold text-slate-800 dark:text-gray-100 mb-2">Confirm New Password</label>
+              <div className="relative">
+                <input required name="confirmPass" type={showPass.confirm ? 'text' : 'password'} placeholder="••••••••" className="w-full px-4 py-3 bg-white dark:bg-[#111827] border border-slate-200 dark:border-gray-700 rounded-xl text-[14px] text-slate-900 dark:text-white focus:border-[#0066FF] outline-none pr-10" />
+                <button type="button" onClick={() => setShowPass({...showPass, confirm: !showPass.confirm})} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-gray-300">
+                  {showPass.confirm ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+          </div>
+          <button type="submit" className="bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 dark:text-slate-900 text-white px-6 py-3 rounded-xl font-bold text-sm transition shadow-md">
+            Update Password
+          </button>
+        </form>
+      </div>
+
       {/* Card 3: Zone de danger */}
-      <div className="bg-red-50/30 rounded-[1.5rem] shadow-sm border border-red-100 p-8">
+      <div className="bg-red-50/30 dark:bg-red-900/10 rounded-[1.5rem] shadow-sm border border-red-100 dark:border-red-900/30 p-8">
         <div className="flex items-center gap-3 mb-2">
           <ShieldAlert size={20} className="text-red-500" />
           <h3 className="font-bold text-red-600 text-lg">Danger Zone</h3>
@@ -326,7 +408,7 @@ export default function Profil() {
         <p className="text-slate-500 dark:text-gray-400 text-sm font-medium mb-6">These actions are irreversible. Proceed with caution.</p>
         
         <div className="flex flex-wrap items-center gap-4">
-          <button onClick={handleDeleteAccount} className="px-5 py-2.5 bg-white dark:bg-[#111827] border border-red-200 text-red-500 rounded-xl font-bold text-sm hover:bg-red-50 transition shadow-sm">
+          <button onClick={handleDeleteAccount} className="px-5 py-2.5 bg-white dark:bg-[#111827] border border-red-200 text-red-500 rounded-xl font-bold text-sm hover:bg-red-50 dark:hover:bg-red-900/30 transition shadow-sm">
             Delete my account
           </button>
           <button onClick={handleExportData} className="px-5 py-2.5 bg-white dark:bg-[#111827] border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-gray-300 rounded-xl font-bold text-sm hover:bg-slate-50 dark:bg-[#1f2937] transition shadow-sm">
@@ -364,7 +446,26 @@ export default function Profil() {
         </div>
       )}
 
-    </div>
+    
+      {/* Password Update Modal */}
+      {modalInfo.show && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+          <div className="bg-white dark:bg-[#111827] rounded-3xl shadow-2xl max-w-sm w-full p-8 border border-slate-100 dark:border-gray-800 transform transition-all text-center">
+            <div className={`w-16 h-16 rounded-full ${modalInfo.type === 'success' ? 'bg-emerald-100 text-emerald-500' : 'bg-red-100 text-red-500'} flex items-center justify-center mx-auto mb-6 shadow-sm`}>
+              {modalInfo.type === 'success' ? <CheckCircle2 size={32} /> : <XCircle size={32} />}
+            </div>
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{modalInfo.title}</h3>
+            <p className="text-slate-500 dark:text-gray-400 text-[15px] mb-8">{modalInfo.message}</p>
+            <button 
+              onClick={() => setModalInfo({...modalInfo, show: false})}
+              className="w-full py-3.5 bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 rounded-xl font-bold transition shadow-md"
+            >
+              Fermer
+            </button>
+          </div>
+        </div>
+      )}
+</div>
   );
 }
 

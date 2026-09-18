@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { Link } from '@/i18n/routing';
-import { BookOpen, TrendingUp, Clock, Award, ChevronRight, CheckCircle2, ArrowRight, Trophy, Download, Bot } from 'lucide-react';
+import { ChevronLeft, BookOpen, TrendingUp, Clock, Award, ChevronRight, CheckCircle2, ArrowRight, Trophy, Download, Bot } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import ProgressChart from '@/components/dashboard/ProgressChart';
 
@@ -14,6 +14,8 @@ export default function MonEspace() {
   const [loading, setLoading] = useState(true);
   const [coachMessage, setCoachMessage] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<{nom: string, photo: string | null} | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 3;
 
   useEffect(() => {
     if (session?.user?.email) {
@@ -167,38 +169,70 @@ export default function MonEspace() {
         </div>
 
         <div className="space-y-6">
-          {data?.availableCourses?.map((course: any, index: number) => {
-            const ins = data.inscriptions?.find((i: any) => i.formationId === course.id);
-            const progression = ins ? ins.progression : 0;
-            const firstModuleId = course.modules?.[0]?.id;
-            const linkHref = firstModuleId ? `/formations/${course.id}/modules/${firstModuleId}` : '#';
-            const dateStr = ins ? new Date(ins.updatedAt).toLocaleDateString() : t('notStarted');
+          {(() => {
+            const inscriptions = data?.inscriptions || [];
+            const totalPages = Math.ceil(inscriptions.length / itemsPerPage);
+            const indexOfLastItem = currentPage * itemsPerPage;
+            const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+            const currentInscriptions = inscriptions.slice(indexOfFirstItem, indexOfLastItem);
+
+            if (inscriptions.length === 0) {
+              return <p className="text-sm text-slate-500 dark:text-gray-400 text-center py-4">Aucune formation commencée.</p>;
+            }
 
             return (
-              <div key={course.id || index} className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 ${getIconClass(progression)} dark:bg-[#111827]`}>
-                  <BookOpen size={20} />
-                </div>
-                
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-slate-900 dark:text-white text-[15px] truncate mb-1">{course.titre}</h3>
-                  <div className="flex items-center gap-4 mt-2">
-                    <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex-1">
-                      <div className={`h-full rounded-full ${getColorClass(progression)}`} style={{ width: `${progression}%` }}></div>
-                    </div>
-                    <span className="text-xs font-bold text-slate-400 w-8">{progression} %</span>
-                  </div>
-                  <p className="text-[11px] text-slate-400 font-medium mt-1.5">{t('lastUpdated')} {dateStr}</p>
-                </div>
+              <>
+                {currentInscriptions.map((ins: any, index: number) => {
+                  const course = ins.formation;
+                  const progression = ins.progression || 0;
+                  const firstModuleId = course?.modules?.[0]?.id;
+                  const linkHref = (firstModuleId) ? `/formations/${course.id}/modules/${firstModuleId}` : `/formations/${course.id}`;
+                  const dateStr = new Date(ins.updatedAt).toLocaleDateString();
 
-                <div className="flex-shrink-0 mt-2 sm:mt-0">
-                  <Link href={linkHref} className="inline-block px-4 py-2 rounded-xl text-xs font-bold text-[#0066FF] dark:text-blue-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition shadow-sm">
-                    {ins && progression > 0 ? t('btnResume') : t('btnStart')}
-                  </Link>
-                </div>
-              </div>
+                  return (
+                    <div key={course.id || index} className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 ${getIconClass(progression)} dark:bg-[#111827]`}>
+                        <BookOpen size={20} />
+                      </div>
+                      
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-slate-900 dark:text-white text-[15px] truncate mb-1">{course.titre}</h3>
+                        <div className="flex items-center gap-4 mt-2">
+                          <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex-1">
+                            <div className={`h-full rounded-full ${getColorClass(progression)}`} style={{ width: `${progression}%` }}></div>
+                          </div>
+                          <span className="text-xs font-bold text-slate-400 w-8">{progression} %</span>
+                        </div>
+                        <p className="text-[11px] text-slate-400 font-medium mt-1.5">{t('lastUpdated')} {dateStr}</p>
+                      </div>
+
+                      <div className="flex-shrink-0 mt-2 sm:mt-0">
+                        <Link href={linkHref} className="inline-block px-4 py-2 rounded-xl text-xs font-bold text-[#0066FF] dark:text-blue-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition shadow-sm">
+                          {progression > 0 ? t('btnResume') : t('btnStart')}
+                        </Link>
+                      </div>
+                    </div>
+                  );
+                })}
+                
+                {inscriptions.length > itemsPerPage && (
+                  <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <div className="text-sm text-slate-500 dark:text-gray-400">
+                      Affichage de {indexOfFirstItem + 1} à {Math.min(indexOfLastItem, inscriptions.length)} sur {inscriptions.length}
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="p-2 rounded-lg border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-gray-300 disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-slate-800 transition">
+                        <ChevronLeft size={18} />
+                      </button>
+                      <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages || totalPages === 0} className="p-2 rounded-lg border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-gray-300 disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-slate-800 transition">
+                        <ChevronRight size={18} />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
             );
-          })}
+          })()}
         </div>
       </div>
 

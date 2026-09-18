@@ -1,11 +1,13 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { Award, BellRing, FileText, CheckCircle2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Award, BellRing, FileText, CheckCircle2 } from 'lucide-react';
 
 export default function AdminNotifications() {
   const { data: session } = useSession();
   const [notifications, setNotifications] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
   const [loading, setLoading] = useState(true);
 
   const [prefs, setPrefs] = useState({
@@ -72,11 +74,24 @@ export default function AdminNotifications() {
     if (session?.user?.email) {
       localStorage.setItem(`admin_prefs_${session.user.email}`, JSON.stringify(newPrefs));
     }
+    // Afficher une alerte pour confirmer l'action à l'utilisateur
+    if (key === 'nouveauxCours') {
+      alert(`Les alertes pour les nouvelles inscriptions sont maintenant ${!prefs.nouveauxCours ? 'ACTIVÉES' : 'DÉSACTIVÉES'}.`);
+    } else if (key === 'email') {
+      alert(`Le résumé hebdomadaire par email est maintenant ${!prefs.email ? 'ACTIVÉ' : 'DÉSACTIVÉ'}.`);
+    }
   };
 
   const unreadCount = notifications.filter(n => !n.lu).length;
 
-  return (
+  
+  
+  const totalPages = Math.ceil(notifications.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentNotifications = notifications.slice(indexOfFirstItem, indexOfLastItem);
+
+return (
     <div className="max-w-4xl space-y-6">
       <div>
         <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white">Admin Notifications</h1>
@@ -103,7 +118,7 @@ export default function AdminNotifications() {
           ) : notifications.length === 0 ? (
             <div className="text-center text-slate-400 py-4">No notifications yet.</div>
           ) : (
-            notifications.map((notif) => (
+            currentNotifications.map((notif) => (
               <div 
                 key={notif.id} 
                 onClick={() => !notif.lu && markAsRead(notif.id)}
@@ -125,9 +140,27 @@ export default function AdminNotifications() {
                 </div>
               </div>
             ))
+
           )}
         </div>
+        
+        {notifications.length > 0 && (
+          <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-100 dark:border-gray-800">
+            <div className="text-sm text-slate-500 dark:text-gray-400">
+              Affichage de {indexOfFirstItem + 1} à {Math.min(indexOfLastItem, notifications.length)} sur {notifications.length}
+            </div>
+            <div className="flex gap-2">
+              <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="p-2 rounded-lg border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-gray-300 disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-slate-800 transition">
+                <ChevronLeft size={18} />
+              </button>
+              <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages || totalPages === 0} className="p-2 rounded-lg border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-gray-300 disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-slate-800 transition">
+                <ChevronRight size={18} />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
+
 
       {/* Preferences */}
       <div className="bg-white dark:bg-[#111827] rounded-[1.5rem] shadow-sm border border-slate-100 dark:border-gray-800 p-8">

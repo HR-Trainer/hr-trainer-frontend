@@ -40,7 +40,8 @@ export const authOptions: NextAuthOptions = {
               statutAcces: user.statutAcces,
               telephone: user.telephone,
               poste: user.poste,
-              role: user.role
+              role: user.role,
+              forcePasswordReset: user.forcePasswordReset
             };
           }
           
@@ -110,6 +111,9 @@ export const authOptions: NextAuthOptions = {
         token.telephone = (user as any).telephone;
         token.poste = (user as any).poste;
         token.role = (user as any).role;
+        if ((user as any).forcePasswordReset !== undefined) {
+          token.forcePasswordReset = (user as any).forcePasswordReset;
+        }
       }
       return token;
     },
@@ -121,6 +125,7 @@ export const authOptions: NextAuthOptions = {
         (session.user as any).telephone = token.telephone;
         (session.user as any).poste = token.poste;
         (session.user as any).role = token.role;
+        (session.user as any).forcePasswordReset = token.forcePasswordReset;
         // On ne recupere pas la photo via le token. Le client l'obtiendra via localStorage ou un fetch.
       }
       return session;

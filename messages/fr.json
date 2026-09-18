@@ -183,7 +183,25 @@
     "navContact": "Contact",
     "navCertificates": "Attestations",
     "navCurrentModule": "Module en cours",
-    "learnerSpace": "Espace Apprenant"
+    "learnerSpace": "Espace Apprenant",
+    "historyAndLearning": "HISTORIQUE ET APPRENTISSAGE",
+    "myCourses": "Mes Formations",
+    "myCoursesDesc": "Retrouvez ici toutes les formations auxquelles vous avez accès (gratuites, achetées, ou via votre entreprise).",
+    "inProgress": "En cours",
+    "toStart": "À commencer",
+    "completed": "Terminées",
+    "noCoursesFound": "Aucune formation trouvée.",
+    "noCoursesFoundTitle": "Aucune formation",
+    "noCoursesFoundDesc": "Vous n'avez accès à aucune formation pour le moment.",
+    "discoverCatalog": "Découvrir le catalogue",
+    "free": "Gratuit",
+    "premium": "Premium",
+    "review": "Revoir",
+    "resume": "Reprendre",
+    "start": "Commencer",
+    "buyNow": "Acheter maintenant",
+    "loading": "Chargement...",
+    "continueCourse": "Continuer la formation"
   },
   "Index": {
     "title": "Bienvenue sur HR-Trainer",
@@ -238,6 +256,7 @@
     "navUsers": "Utilisateurs",
     "navCourses": "Formations",
     "navSettings": "Paramètres",
-    "adminSpace": "Espace Administrateur"
+    "adminSpace": "Espace Administrateur",
+    "navPayments": "Paiements & Inscriptions"
   }
 }
